@@ -1,0 +1,13 @@
+{
+    "name": "@measureme/sandbox",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "compile": "tsc --noEmit",
+        "dev": "vite"
+    },
+    "dependencies": {
+        "@measureme/core": "workspace:"
+    }
+}
