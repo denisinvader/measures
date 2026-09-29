@@ -4,7 +4,13 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "compile": "tsc --noEmit",
+        "tsc": "tsc --noEmit",
         "dev": "vite"
+    },
+    "dependencies": {
+        "@floating-ui/dom": "^1.8.0"
+    },
+    "devDependencies": {
+        "csstype": "^3.2.3"
     }
 }

@@ -2,3 +2,5 @@ packages:
     - core
     - extension
     - sandbox
+allowBuilds:
+  esbuild: set this to true or false

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Overlay stress test - @measureme/sandbox</title>
+        <link rel="stylesheet" href="./style.css" />
+    </head>
+    <body>
+        <aside class="monitor" aria-label="Stress test controls">
+            <strong>Overlay monitor</strong>
+            <dl>
+                <div>
+                    <dt>Viewport</dt>
+                    <dd id="viewport-size">-</dd>
+                </div>
+                <div>
+                    <dt>Before mount</dt>
+                    <dd id="baseline-size">-</dd>
+                </div>
+                <div>
+                    <dt>Document</dt>
+                    <dd id="document-size">-</dd>
+                </div>
+                <div>
+                    <dt>Growth</dt>
+                    <dd id="document-growth">-</dd>
+                </div>
+                <div>
+                    <dt>Scroll</dt>
+                    <dd id="scroll-position">-</dd>
+                </div>
+                <div>
+                    <dt>Overlays</dt>
+                    <dd id="overlay-count">0</dd>
+                </div>
+            </dl>
+            <div class="monitor-actions">
+                <button id="toggle-overlays" type="button">Destroy overlays</button>
+                <button id="scroll-all-end" type="button">Scroll boxes to end</button>
+                <button id="reset-scroll" type="button">Reset scroll</button>
+            </div>
+        </aside>
+
+        <header class="page-header">
+            <p><a href="../">← Sandbox</a></p>
+            <p class="eyebrow">@measureme/core</p>
+            <h1>Overlay stress test</h1>
+            <p class="lede">
+                Every striped element is measured. The page itself contains no intentional
+                horizontal overflow; changes in the monitor expose overlay-induced document growth.
+            </p>
+        </header>
+
+        <main>
+            <section class="case-section" aria-labelledby="basic-title">
+                <div class="section-heading">
+                    <p class="case-number">01</p>
+                    <div>
+                        <h2 id="basic-title">Baseline geometry</h2>
+                        <p>
+                            Fractional sizes, inline fragments, SVG geometry, and zero-size boxes.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="sample-grid">
+                    <div class="sample-card">
+                        <div class="target fractional-target" data-measure>
+                            237.5 × 91.25 CSS pixels
+                        </div>
+                    </div>
+                    <div class="sample-card narrow-copy">
+                        Text before a
+                        <a class="inline-target" href="#scroll-title" data-measure>
+                            measured inline link wrapping across several lines
+                        </a>
+                        and text after it.
+                    </div>
+                    <div class="sample-card">
+                        <svg class="geometry-svg" viewBox="0 0 260 120" aria-label="Measured SVG">
+                            <path
+                                data-measure
+                                d="M18 94 C48 10 118 10 142 70 S218 110 244 28"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="12"
+                                stroke-linecap="round"
+                            />
+                        </svg>
+                    </div>
+                    <div class="sample-card zero-card">
+                        <span class="zero-target" data-measure aria-label="Zero-size target"></span>
+                        <span>The blue dot is next to a measured 0 × 0 span.</span>
+                    </div>
+                    <div class="sample-card contents-card">
+                        <span class="display-contents-target" data-measure>
+                            <span>Programmatic-only parent uses</span>
+                            <code>display: contents</code>
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="case-section" aria-labelledby="viewport-title">
+                <div class="section-heading">
+                    <p class="case-number">02</p>
+                    <div>
+                        <h2 id="viewport-title">References larger than the viewport</h2>
+                        <p>
+                            These targets cannot fit inside the layout viewport or their clipping
+                            frame at any scroll position.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="clip-frame viewport-clip">
+                    <div class="target viewport-monster" data-measure>
+                        <strong>Larger than the viewport in both axes</strong>
+                        <span>Its source box remains clipped inside this frame.</span>
+                    </div>
+                </div>
+
+                <div class="clip-grid">
+                    <div class="clip-frame edge-clip">
+                        <div class="target edge-target edge-target--top-left" data-measure>
+                            Partial top + left
+                        </div>
+                    </div>
+                    <div class="clip-frame edge-clip">
+                        <div class="target edge-target edge-target--bottom-right" data-measure>
+                            Partial bottom + right
+                        </div>
+                    </div>
+                    <div class="clip-frame edge-clip overflow-clip-frame">
+                        <div class="target edge-target edge-target--fully-out" data-measure>
+                            Fully outside overflow: clip
+                        </div>
+                    </div>
+                    <div class="clip-frame edge-clip clip-path-frame">
+                        <div class="target edge-target edge-target--clip-path" data-measure>
+                            Clipped only by clip-path
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="scroll-title" class="case-section" aria-labelledby="scroll-heading">
+                <div class="section-heading">
+                    <p class="case-number">03</p>
+                    <div>
+                        <h2 id="scroll-heading">Two-axis scroll container</h2>
+                        <p>
+                            Includes a sticky target, fully hidden far targets, and one target
+                            larger than the scrollport.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="scroller main-scroller" data-scroll-box tabindex="0">
+                    <div class="scroll-stage">
+                        <div class="target scroll-target scroll-target--origin" data-measure>
+                            Near origin
+                        </div>
+                        <div class="target scroll-target scroll-target--right" data-measure>
+                            Far right
+                        </div>
+                        <div class="target scroll-target scroll-target--bottom" data-measure>
+                            Far bottom
+                        </div>
+                        <div class="target scroll-target scroll-target--corner" data-measure>
+                            Far corner
+                        </div>
+                        <div class="target oversized-scroll-target" data-measure>
+                            920 × 640 — always clipped by this scrollport
+                        </div>
+                        <div class="target sticky-target" data-measure>Sticky in both axes</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="case-section" aria-labelledby="nested-title">
+                <div class="section-heading">
+                    <p class="case-number">04</p>
+                    <div>
+                        <h2 id="nested-title">Nested clipping and scrolling</h2>
+                        <p>
+                            Scroll the inner and outer boxes independently. An overflow-hidden layer
+                            sits between the measured element and the outer scrollport.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="scroller nested-outer" data-scroll-box tabindex="0">
+                    <div class="nested-outer-stage">
+                        <div class="target nested-outer-target" data-measure>Outer target</div>
+                        <div class="nested-clip">
+                            <div class="scroller nested-inner" data-scroll-box tabindex="0">
+                                <div class="nested-inner-stage">
+                                    <div class="target nested-inner-origin" data-measure>
+                                        Inner origin
+                                    </div>
+                                    <div class="target nested-inner-large" data-measure>
+                                        Larger than inner scrollport
+                                    </div>
+                                    <div class="target nested-inner-far" data-measure>
+                                        Deep nested corner
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="case-section" aria-labelledby="axes-title">
+                <div class="section-heading">
+                    <p class="case-number">05</p>
+                    <div>
+                        <h2 id="axes-title">Axis and direction edge cases</h2>
+                        <p>Horizontal RTL scrolling, vertical-only scrolling, and CSS zoom.</p>
+                    </div>
+                </div>
+
+                <div class="axes-grid">
+                    <div>
+                        <h3>Horizontal RTL</h3>
+                        <div class="scroller rtl-scroller" data-scroll-box tabindex="0" dir="rtl">
+                            <div class="rtl-stage">
+                                <div class="target rtl-start" data-measure>RTL start</div>
+                                <div class="target rtl-middle" data-measure>RTL middle</div>
+                                <div class="target rtl-end" data-measure>RTL end</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Vertical and zoomed</h3>
+                        <div class="scroller vertical-scroller" data-scroll-box tabindex="0">
+                            <div class="vertical-stage">
+                                <div class="target vertical-start" data-measure>Top</div>
+                                <div class="zoom-layer">
+                                    <div class="target zoom-target" data-measure>zoom: 1.2</div>
+                                </div>
+                                <div class="target vertical-end" data-measure>Bottom</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="case-section" aria-labelledby="contexts-title">
+                <div class="section-heading">
+                    <p class="case-number">06</p>
+                    <div>
+                        <h2 id="contexts-title">Fixed-position containing blocks</h2>
+                        <p>
+                            Each local fixed target is trapped by a different ancestor. Compare them
+                            with the viewport-fixed target in the lower-right corner.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="context-grid">
+                    <div class="context-card context-transform">
+                        <code>transform: translateZ(0)</code>
+                        <div class="target local-fixed" data-measure>Local fixed</div>
+                    </div>
+                    <div class="context-card context-filter">
+                        <code>filter: brightness(1)</code>
+                        <div class="target local-fixed" data-measure>Local fixed</div>
+                    </div>
+                    <div class="context-card context-contain">
+                        <code>contain: paint</code>
+                        <div class="target local-fixed" data-measure>Local fixed</div>
+                    </div>
+                    <div class="context-card context-perspective">
+                        <code>perspective: 1000px</code>
+                        <div class="target local-fixed" data-measure>Local fixed</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="case-section final-spacer" aria-labelledby="document-title">
+                <div class="section-heading">
+                    <p class="case-number">07</p>
+                    <div>
+                        <h2 id="document-title">Document-level movement</h2>
+                        <p>
+                            The target below is near the end of a tall page. Use the monitor to
+                            compare document dimensions before and after overlay mounting.
+                        </p>
+                    </div>
+                </div>
+                <div class="target document-end-target" data-measure>Near document end</div>
+            </section>
+        </main>
+
+        <div class="target viewport-fixed-target" data-measure>Viewport fixed</div>
+
+        <script type="module" src="./stress.ts"></script>
+    </body>
+</html>

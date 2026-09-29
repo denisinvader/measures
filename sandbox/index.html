@@ -4,9 +4,30 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>@measureme/sandbox</title>
+        <script>
+            const colorScheme = matchMedia('(prefers-color-scheme: dark)');
+            const applyTheme = () => {
+                document.documentElement.dataset.bsTheme = colorScheme.matches ? 'dark' : 'light';
+            };
+
+            applyTheme();
+            colorScheme.addEventListener('change', applyTheme);
+        </script>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
     </head>
     <body>
-        <div id="app"></div>
-        <script type="module" src="/src/main.ts"></script>
+        <main class="container d-flex min-vh-100 align-items-center justify-content-center py-4">
+            <nav class="list-group w-100 shadow-sm" style="max-width: 28rem">
+                <a class="list-group-item list-group-item-action p-3" href="./base/">Base</a>
+                <a class="list-group-item list-group-item-action p-3" href="./stress/">
+                    Overlay stress test
+                </a>
+            </nav>
+        </main>
     </body>
 </html>

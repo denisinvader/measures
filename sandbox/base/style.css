@@ -1,0 +1,262 @@
+:root,
+[data-bs-theme='light'] {
+    --bs-body-bg: #f6f7f9;
+    --bs-body-color: #20262d;
+    --bs-secondary-color: #626b77;
+    --bs-border-color: #e0e4e9;
+    --bs-border-radius: 0.8rem;
+    --base-surface: #fff;
+    --base-feature-bg: #e9eef5;
+    --base-detail-bg: #edf0e7;
+    --base-accent: #507357;
+    --base-accent-color: #395740;
+    --base-accent-bg: #e3ece3;
+    --base-muted: #707a87;
+    --base-shape-circle: #a9bbd2;
+    --base-shape-square: #d2deed;
+}
+
+[data-bs-theme='dark'] {
+    --bs-body-bg: #181c21;
+    --bs-body-color: #e3e8ee;
+    --bs-secondary-color: #a6b0be;
+    --bs-border-color: #39434f;
+    --base-surface: #232a32;
+    --base-feature-bg: #283443;
+    --base-detail-bg: #2d352b;
+    --base-accent: #a7c8ad;
+    --base-accent-color: #c0dcc5;
+    --base-accent-bg: #304738;
+    --base-muted: #aab8c9;
+    --base-shape-circle: #617a99;
+    --base-shape-square: #8da4bf;
+}
+
+/* Keep the shared sandbox styles in sync with the selected Bootstrap theme. */
+:root[data-bs-theme] {
+    --text: var(--bs-secondary-color);
+    --text-h: var(--bs-body-color);
+    --bg: var(--bs-body-bg);
+    color-scheme: light;
+}
+
+:root[data-bs-theme='dark'] {
+    color-scheme: dark;
+}
+
+.page-shell {
+    max-width: 1040px;
+}
+
+.brand {
+    color: var(--bs-body-color);
+    font-size: 1.65rem;
+    font-weight: 800;
+    letter-spacing: -0.08em;
+}
+
+.brand span {
+    color: var(--base-accent);
+}
+
+.hero {
+    padding: clamp(3rem, 7vw, 5rem) 0;
+}
+
+.intro-badge,
+.status-badge {
+    padding: 0.65em 0.95em;
+    color: var(--base-accent-color);
+    background: var(--base-accent-bg);
+    font-weight: 500;
+}
+
+.hero h1 {
+    font-size: clamp(2.8rem, 6.5vw, 4.7rem);
+    line-height: 1.08;
+    font-weight: 600;
+    letter-spacing: -0.055em;
+}
+
+.hero h1 span {
+    color: var(--base-muted);
+}
+
+.btn {
+    --bs-btn-border-radius: 0.7rem;
+}
+
+.btn-light {
+    --bs-btn-bg: #e9edf1;
+}
+
+.card {
+    --bs-card-bg: var(--base-surface);
+    --bs-card-border-radius: 1.25rem;
+}
+
+.feature-card {
+    --bs-card-bg: var(--base-feature-bg);
+}
+
+.detail-card {
+    --bs-card-bg: var(--base-detail-bg);
+}
+
+.shape-composition {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    margin: 1rem 0 1.5rem;
+}
+
+.shape-circle {
+    width: 126px;
+    height: 126px;
+    border-radius: 50%;
+    background: var(--base-shape-circle);
+}
+
+.shape-square {
+    width: 100px;
+    height: 100px;
+    margin-left: -24px;
+    border-radius: 22px;
+    background: var(--base-shape-square);
+    transform: rotate(-12deg);
+}
+
+.form-control {
+    background: var(--bs-body-bg);
+    resize: vertical;
+}
+
+.form-control:focus {
+    border-color: #82958a;
+    box-shadow: 0 0 0 0.2rem rgb(80 115 87 / 15%);
+}
+
+.test-section {
+    padding-block: 3rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.action-examples {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.debug-action {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: fit-content;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    background: var(--base-accent-bg);
+    color: var(--base-accent-color);
+}
+
+.debug-action-narrow {
+    width: 235.5px;
+}
+
+.action-icon {
+    width: 24px;
+    height: 24px;
+    flex: none;
+}
+
+.inline-copy {
+    max-width: 280px;
+}
+
+.scroll-viewport {
+    position: relative;
+    width: 760px;
+    max-width: 100%;
+    height: 390px;
+    overflow: scroll;
+    border: 1px solid var(--base-shape-circle);
+    border-radius: 1rem;
+    background: var(--base-feature-bg);
+}
+
+.scroll-toolbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--base-detail-bg);
+    border-bottom: 1px solid var(--base-shape-circle);
+}
+
+.scroll-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 280px);
+    gap: 20px;
+    width: max-content;
+    padding: 24px;
+}
+
+.scroll-card {
+    min-height: 230px;
+}
+
+.transformed-parent {
+    position: relative;
+    transform: translateZ(0);
+    min-height: 320px;
+    padding: 4rem 1.5rem;
+    border-radius: 1rem;
+    background: var(--base-feature-bg);
+}
+
+.transformed-card {
+    width: 315.5px;
+    max-width: 100%;
+    transform: rotate(-3deg);
+}
+
+.position-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+}
+
+.local-fixed {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    padding: 0.5rem 0.75rem;
+    background: var(--base-surface);
+    border-radius: 0.5rem;
+}
+
+.scroll-up {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.1rem;
+    box-shadow: 0 8px 24px rgb(32 38 45 / 18%);
+}
+
+.up-icon {
+    transform: rotate(-90deg);
+}
+
+.page-shell > footer {
+    padding-bottom: 7rem !important;
+}

@@ -6,7 +6,9 @@
     "scripts": {
         "sandbox": "pnpm -F sandbox dev",
         "lint": "eslint .",
-        "lint:fix": "eslint . --fix"
+        "lint:fix": "eslint . --fix",
+        "test": "node --import tsx --test **/__tests__/*.test.*",
+        "test:watch": "node --import tsx --test --watch **/__tests__/*.test.*"
     },
     "keywords": [],
     "author": "",
@@ -22,11 +24,12 @@
     "type": "module",
     "devDependencies": {
         "@eslint/js": "^10.0.1",
-        "@types/node": "^26.4.1",
+        "@types/node": "^24.0.0",
         "eslint": "^10.9.1",
         "eslint-config-prettier": "^10.1.8",
         "globals": "^17.12.0",
         "prettier": "^3.9.6",
+        "tsx": "^4.23.15",
         "typescript": "^6.0.3",
         "typescript-eslint": "^8.69.0",
         "vite": "^8.2.2"
