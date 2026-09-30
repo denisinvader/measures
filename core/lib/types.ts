@@ -1,4 +1,4 @@
-export interface Side<T = number> {
+export interface Sides<T = number> {
     top: T;
     right: T;
     bottom: T;
