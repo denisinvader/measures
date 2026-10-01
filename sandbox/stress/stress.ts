@@ -1,4 +1,4 @@
-import { ElementSizeBox } from '@measureme/core';
+import { MeasuresController } from '@measureme/core';
 
 type DocumentSize = {
     width: number;
@@ -30,7 +30,6 @@ const toggleButton = document.querySelector<HTMLButtonElement>('#toggle-overlays
 const scrollAllEndButton = document.querySelector<HTMLButtonElement>('#scroll-all-end');
 const resetScrollButton = document.querySelector<HTMLButtonElement>('#reset-scroll');
 
-let boxes: ElementSizeBox[] = [];
 let metricsFrame = 0;
 
 const renderMetrics = () => {
@@ -50,7 +49,7 @@ const renderMetrics = () => {
     if (scrollPosition) {
         scrollPosition.textContent = `${Math.round(scrollX)}, ${Math.round(scrollY)}`;
     }
-    if (overlayCount) overlayCount.textContent = String(boxes.length);
+    if (overlayCount) overlayCount.textContent = 'unsupported';
 };
 
 const scheduleMetrics = () => {
@@ -58,23 +57,25 @@ const scheduleMetrics = () => {
     metricsFrame = requestAnimationFrame(renderMetrics);
 };
 
-const mountOverlays = () => {
-    if (boxes.length) return;
+let active = true;
+const cc = new MeasuresController();
 
-    boxes = targets.map((target) => new ElementSizeBox(target));
+const mountOverlays = () => {
+    active = true;
+    targets.map((target) => cc.observe(target));
     if (toggleButton) toggleButton.textContent = 'Destroy overlays';
     scheduleMetrics();
 };
 
 const destroyOverlays = () => {
-    for (const box of boxes) box.destroy();
-    boxes = [];
+    active = false;
+    cc.cleanup();
     if (toggleButton) toggleButton.textContent = 'Mount overlays';
     scheduleMetrics();
 };
 
 const toggleOverlays = () => {
-    if (boxes.length) destroyOverlays();
+    if (active) destroyOverlays();
     else mountOverlays();
 };
 

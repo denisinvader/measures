@@ -10,6 +10,7 @@ export const styles = {
     box: {
         border: `thin solid ${COLORS.blue}`,
         position: 'absolute',
+        zIndex: 1000,
     },
     boxSizeLabel: {
         backgroundColor: COLORS.blue,

@@ -25,7 +25,7 @@ export class Rect {
         return new Rect(this.x, this.y, this.width, this.height);
     }
 
-    public isEqual(other: Rect): boolean {
+    public equals(other: Rect): boolean {
         return (
             this.x === other.x &&
             this.y === other.y &&

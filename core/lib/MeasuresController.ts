@@ -31,7 +31,7 @@ export class MeasuresController {
             return;
         }
 
-        if (node instanceof HTMLElement || node instanceof SVGAElement) {
+        if (node instanceof HTMLElement || node instanceof SVGElement) {
             this.targets.set(node, new ElementSizeBoxV2(node));
 
             this.stopRaf();

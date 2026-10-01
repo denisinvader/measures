@@ -1,5 +1,5 @@
 import '../src/style.css';
-import { ElementSizeBox, ElementSizeBoxV2, MeasuresController } from '@measureme/core';
+import { MeasuresController } from '@measureme/core';
 
 (() => {
     const themeToggle = document.getElementById('theme-toggle');
@@ -47,6 +47,20 @@ import { ElementSizeBox, ElementSizeBoxV2, MeasuresController } from '@measureme
         });
     });
 
+    const toggle = document.getElementById('toggle');
+    let active = true;
+    const handleToggle = () => {
+        if (active) {
+            cc.cleanup();
+        } else {
+            document
+                .querySelectorAll('#hero-title, #note, [data-debug-box]')
+                .forEach((target) => cc.observe(target));
+        }
+        active = !active;
+    };
+    toggle?.addEventListener('click', handleToggle);
+
     const cc = new MeasuresController();
 
     document
@@ -55,6 +69,7 @@ import { ElementSizeBox, ElementSizeBoxV2, MeasuresController } from '@measureme
 
     import.meta.hot?.dispose(() => {
         themeToggle?.removeEventListener('click', toggleTheme);
+        toggle?.removeEventListener('click', handleToggle);
 
         cc.cleanup();
     });

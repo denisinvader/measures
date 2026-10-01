@@ -24,17 +24,7 @@ test('Rect', () => {
 
     test('fromDOMRect', () => {
         it('matches DOMRect integer values', () => {
-            const rect = Rect.fromDOMRect({
-                x: 7,
-                y: 13,
-                width: 2,
-                height: 5,
-                left: 7,
-                top: 13,
-                right: 9,
-                bottom: 18,
-                toJSON: () => {},
-            });
+            const rect = Rect.fromDOMRect(new DOMRect(7, 13, 2, 5));
 
             assert.equal(rect.x, 7);
             assert.equal(rect.y, 13);
@@ -43,17 +33,7 @@ test('Rect', () => {
         });
 
         it('matches DOMRect round values', () => {
-            const rect = Rect.fromDOMRect({
-                x: 12,
-                y: 12.5,
-                width: 14.791,
-                height: 0.379,
-                left: 12,
-                top: 12.5,
-                right: 26.791,
-                bottom: 12.879,
-                toJSON: () => {},
-            });
+            const rect = Rect.fromDOMRect(new DOMRect(12, 12.5, 14.791, 0.379));
 
             assert.equal(rect.x, 12);
             assert.equal(rect.y, 12.5);
@@ -111,7 +91,7 @@ test('Rect', () => {
 
             const [intersection, sides] = outer.copy().getIntersection(outer);
 
-            assert.equal(intersection.isEqual(outer), true);
+            assert.equal(intersection.equals(outer), true);
             assert.deepEqual(sides, {
                 top: false,
                 right: false,
@@ -125,7 +105,7 @@ test('Rect', () => {
 
             const [intersection, sides] = new Rect(0, 0, 100, 100).getIntersection(outer);
 
-            assert.equal(intersection.isEqual(outer), true);
+            assert.equal(intersection.equals(outer), true);
             assert.deepEqual(sides, {
                 top: true,
                 right: true,
@@ -138,7 +118,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(25, -10, 50, 50).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(25, 0, 50, 40)), true);
+            assert.equal(intersection.equals(new Rect(25, 0, 50, 40)), true);
             assert.deepEqual(sides, {
                 top: true,
                 right: false,
@@ -151,7 +131,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(75, 25, 50, 50).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(75, 25, 25, 50)), true);
+            assert.equal(intersection.equals(new Rect(75, 25, 25, 50)), true);
             assert.deepEqual(sides, {
                 top: false,
                 right: true,
@@ -164,7 +144,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(25, 75, 50, 50).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(25, 75, 50, 25)), true);
+            assert.equal(intersection.equals(new Rect(25, 75, 50, 25)), true);
             assert.deepEqual(sides, {
                 top: false,
                 right: false,
@@ -177,7 +157,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(-10, 25, 50, 50).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(0, 25, 40, 50)), true);
+            assert.equal(intersection.equals(new Rect(0, 25, 40, 50)), true);
             assert.deepEqual(sides, {
                 top: false,
                 right: false,
@@ -190,7 +170,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(-10, -10, 50, 50).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(0, 0, 40, 40)), true);
+            assert.equal(intersection.equals(new Rect(0, 0, 40, 40)), true);
             assert.deepEqual(sides, {
                 top: true,
                 right: false,
@@ -203,7 +183,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(80, -10, 50, 50).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(80, 0, 20, 40)), true);
+            assert.equal(intersection.equals(new Rect(80, 0, 20, 40)), true);
             assert.deepEqual(sides, {
                 top: true,
                 right: true,
@@ -216,7 +196,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(-25, 75, 50, 50).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(0, 75, 25, 25)), true);
+            assert.equal(intersection.equals(new Rect(0, 75, 25, 25)), true);
             assert.deepEqual(sides, {
                 top: false,
                 right: false,
@@ -229,7 +209,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(80, 95, 50, 50).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(80, 95, 20, 5)), true);
+            assert.equal(intersection.equals(new Rect(80, 95, 20, 5)), true);
             assert.deepEqual(sides, {
                 top: false,
                 right: true,
@@ -242,7 +222,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(-25, -25, 50, 150).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(0, 0, 25, 100)), true);
+            assert.equal(intersection.equals(new Rect(0, 0, 25, 100)), true);
             assert.deepEqual(sides, {
                 top: true,
                 right: false,
@@ -255,7 +235,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(80, -10, 50, 150).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(80, 0, 20, 100)), true);
+            assert.equal(intersection.equals(new Rect(80, 0, 20, 100)), true);
             assert.deepEqual(sides, {
                 top: true,
                 right: true,
@@ -268,7 +248,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(-25, -25, 200, 50).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(0, 0, 100, 25)), true);
+            assert.equal(intersection.equals(new Rect(0, 0, 100, 25)), true);
             assert.deepEqual(sides, {
                 top: true,
                 right: true,
@@ -281,7 +261,7 @@ test('Rect', () => {
             const [intersection, sides] = new Rect(-25, 80, 200, 100).getIntersection(
                 new Rect(0, 0, 100, 100),
             );
-            assert.equal(intersection.isEqual(new Rect(0, 80, 100, 20)), true);
+            assert.equal(intersection.equals(new Rect(0, 80, 100, 20)), true);
             assert.deepEqual(sides, {
                 top: false,
                 right: true,

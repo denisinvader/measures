@@ -53,7 +53,7 @@
                         A little breathing room, simple shapes, and thoughtful details.
                     </p>
                     <div class="d-flex flex-wrap align-items-center gap-3">
-                        <a class="btn btn-dark btn-lg" href="#collection">Explore</a>
+                        <button type="button" class="btn btn-dark btn-lg" id="toggle">Toggle</button>
                         <a class="btn btn-outline-secondary" href="#note">Leave a note</a>
                         <a class="btn btn-light btn-sm" href="#details">Details ↗</a>
                     </div>
@@ -126,7 +126,7 @@
                             </svg>
                             Call to action
                         </div>
-                        <div class="debug-action debug-action-narrow" data-debug-box>
+                        <div class="debug-action debug-action-narrow" data-debug-box data-debug-text="1">
                             <svg
                                 class="action-icon"
                                 xmlns="http://www.w3.org/2000/svg"
@@ -207,7 +207,7 @@
             aria-label="Scroll to top"
             data-debug-box
         >
-        <span data-debug-box>
+        <span>
             <svg
                 class="action-icon up-icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -218,6 +218,7 @@
                 stroke-width="2"
                 viewBox="0 0 24 24"
                 aria-hidden="true"
+                data-debug-box
             >
                 <path d="M5 12h14m-7-7 7 7-7 7" />
             </svg>
