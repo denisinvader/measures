@@ -6,6 +6,7 @@ import { Rect } from './Rect';
 
 const px = (v: number) => `${v}px`;
 
+// TODO: fix bug with nested scrollable elements
 const getClipParent = (e: HTMLElement | SVGElement): Element | null => {
     if (e instanceof HTMLElement) {
         return e.offsetParent;

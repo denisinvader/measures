@@ -1,17 +1,27 @@
-import { ElementSizeBoxV2 } from './ElementSizeBoxV2';
+import { ElementSizeObserver } from './ElementSizeObserver';
+import { RenderContext } from './RenderContext';
 
+// TODO: rename
 export class MeasuresController {
-    private targets: Map<Node, ElementSizeBoxV2>;
+    // TODO: rename to saved size-targets or smth
+    private targets: Map<Node, ElementSizeObserver>;
+    // TODO: rename
     private lastRAF: number;
+
+    private renderContext: RenderContext;
 
     constructor() {
         this.targets = new Map();
         this.lastRAF = 0;
+
+        this.renderContext = new RenderContext();
     }
 
+    // TODO: rename
     private goRaf() {
         this.lastRAF = requestAnimationFrame(() => this.tick());
     }
+
     private stopRaf() {
         cancelAnimationFrame(this.lastRAF);
     }
@@ -20,6 +30,8 @@ export class MeasuresController {
         if (!this.targets.size) {
             return;
         }
+
+        this.renderContext.update();
 
         this.targets.forEach((t) => t.update());
 
@@ -32,7 +44,7 @@ export class MeasuresController {
         }
 
         if (node instanceof HTMLElement || node instanceof SVGElement) {
-            this.targets.set(node, new ElementSizeBoxV2(node));
+            this.targets.set(node, new ElementSizeObserver(node, this.renderContext));
 
             this.stopRaf();
 

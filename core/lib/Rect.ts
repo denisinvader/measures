@@ -1,4 +1,4 @@
-import type { Sides } from './types';
+import type { Sides } from './sides';
 
 const round = (v: number) => Math.round(v * 100) / 100;
 
@@ -7,13 +7,48 @@ export class Rect {
     public readonly y: number;
     public readonly width: number;
     public readonly height: number;
+    public readonly x1: number;
+    public readonly x2: number;
+    public readonly y1: number;
+    public readonly y2: number;
+    public readonly sides: Sides<{
+        isClipped: boolean;
+        x1: number;
+        x2: number;
+        y1: number;
+        y2: number;
+    }>;
     public readonly isValid: boolean;
 
-    constructor(x: number, y: number, width: number, height: number) {
-        this.x = round(x);
-        this.y = round(y);
-        this.width = round(width);
-        this.height = round(height);
+    constructor(
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        clippedSides: Partial<Sides<boolean>> = {},
+    ) {
+        const w = round(width);
+        const h = round(height);
+        const x1 = round(x);
+        const x2 = x1 + w;
+        const y1 = round(y);
+        const y2 = y1 + h;
+
+        this.x = x1;
+        this.y = y1;
+        this.width = w;
+        this.height = h;
+        this.x1 = x1;
+        this.x2 = x2;
+        this.y1 = y1;
+        this.y2 = y2;
+        this.sides = {
+            top: { isClipped: !!clippedSides.top, x1, x2, y1, y2: y1 },
+            right: { isClipped: !!clippedSides.right, x1: x2, x2, y1, y2 },
+            bottom: { isClipped: !!clippedSides.bottom, x1, x2, y1: y2, y2 },
+            left: { isClipped: !!clippedSides.left, x1, x2: x1, y1, y2 },
+        };
+
         this.isValid = width >= 0 && height >= 0;
     }
 
@@ -34,29 +69,36 @@ export class Rect {
         );
     }
 
-    // TODO: may be unnecessary
-    public isFits(outer: Rect): boolean {
-        return (
-            this.x >= outer.x &&
-            this.y >= outer.y &&
-            this.x + this.width <= outer.x + outer.width &&
-            this.y + this.height <= outer.y + outer.height
-        );
-    }
-
-    public getIntersection(outer: Rect): [Rect, Sides<boolean>] {
-        const intersections = {
-            left: this.x < outer.x,
-            top: this.y < outer.y,
-            right: this.x + this.width > outer.x + outer.width,
-            bottom: this.y + this.height > outer.y + outer.height,
+    public intersect(outer: Rect): Rect {
+        const intersections: Sides<boolean> = {
+            left: this.x1 < outer.x1,
+            top: this.y1 < outer.y1,
+            right: this.x2 > outer.x2,
+            bottom: this.y2 > outer.y2,
         };
 
-        const x0 = intersections.left ? outer.x : this.x;
-        const x1 = intersections.right ? outer.x + outer.width : this.x + this.width;
-        const y0 = intersections.top ? outer.y : this.y;
-        const y1 = intersections.bottom ? outer.y + outer.height : this.y + this.height;
+        const x1 = intersections.left ? outer.x1 : this.x1;
+        const x2 = intersections.right ? outer.x2 : this.x2;
+        const y1 = intersections.top ? outer.y1 : this.y1;
+        const y2 = intersections.bottom ? outer.y2 : this.y2;
 
-        return [new Rect(x0, y0, x1 - x0, y1 - y0), intersections];
+        return new Rect(x1, y1, x2 - x1, y2 - y1, intersections);
+    }
+
+    /** @deprecated */
+    public getIntersection(outer: Rect): [Rect, Sides<boolean>] {
+        const intersections: Sides<boolean> = {
+            left: this.x1 < outer.x1,
+            top: this.y1 < outer.y1,
+            right: this.x2 > outer.x2,
+            bottom: this.y2 > outer.y2,
+        };
+
+        const x1 = intersections.left ? outer.x1 : this.x1;
+        const x2 = intersections.right ? outer.x2 : this.x2;
+        const y1 = intersections.top ? outer.y1 : this.y1;
+        const y2 = intersections.bottom ? outer.y2 : this.y2;
+
+        return [new Rect(x1, y1, x2 - x1, y2 - y1, intersections), intersections];
     }
 }

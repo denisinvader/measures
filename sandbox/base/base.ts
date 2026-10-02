@@ -47,25 +47,39 @@ import { MeasuresController } from '@measureme/core';
         });
     });
 
+    const cc = new MeasuresController();
+
     const toggle = document.getElementById('toggle');
     let active = true;
+    const activate = () => {
+        document.querySelectorAll('[data-debug-box]').forEach((target) => cc.observe(target));
+
+        document
+            .querySelectorAll<HTMLElement | SVGElement>('[data-debug-text]')
+            .forEach((target) => {
+                const targetIndex = Number(target.dataset.debugText || '0');
+                const textNodes = Array.from(target.childNodes).filter(
+                    (n) => n.TEXT_NODE === n.nodeType,
+                );
+                const targetNode = textNodes[targetIndex];
+                if (!targetNode) {
+                    return;
+                }
+
+                console.info(targetNode);
+            });
+    };
     const handleToggle = () => {
         if (active) {
             cc.cleanup();
         } else {
-            document
-                .querySelectorAll('#hero-title, #note, [data-debug-box]')
-                .forEach((target) => cc.observe(target));
+            activate();
         }
         active = !active;
     };
     toggle?.addEventListener('click', handleToggle);
 
-    const cc = new MeasuresController();
-
-    document
-        .querySelectorAll('#hero-title, #note, [data-debug-box]')
-        .forEach((target) => cc.observe(target));
+    activate();
 
     import.meta.hot?.dispose(() => {
         themeToggle?.removeEventListener('click', toggleTheme);
