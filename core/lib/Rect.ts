@@ -2,6 +2,8 @@ import type { Sides } from './sides';
 
 const round = (v: number) => Math.round(v * 100) / 100;
 
+const center = (p1: number, p2: number) => p1 + (p2 - p1) / 2;
+
 export class Rect {
     public readonly x: number;
     public readonly y: number;
@@ -17,6 +19,8 @@ export class Rect {
         x2: number;
         y1: number;
         y2: number;
+        centerX: number;
+        centerY: number;
     }>;
     public readonly isValid: boolean;
 
@@ -43,10 +47,42 @@ export class Rect {
         this.y1 = y1;
         this.y2 = y2;
         this.sides = {
-            top: { isClipped: !!clippedSides.top, x1, x2, y1, y2: y1 },
-            right: { isClipped: !!clippedSides.right, x1: x2, x2, y1, y2 },
-            bottom: { isClipped: !!clippedSides.bottom, x1, x2, y1: y2, y2 },
-            left: { isClipped: !!clippedSides.left, x1, x2: x1, y1, y2 },
+            top: {
+                isClipped: !!clippedSides.top,
+                x1,
+                x2,
+                y1,
+                y2: y1,
+                centerX: center(x1, x2),
+                centerY: y1,
+            },
+            right: {
+                isClipped: !!clippedSides.right,
+                x1: x2,
+                x2,
+                y1,
+                y2,
+                centerX: x2,
+                centerY: center(y2, y1),
+            },
+            bottom: {
+                isClipped: !!clippedSides.bottom,
+                x1,
+                x2,
+                y1: y2,
+                y2,
+                centerX: center(x1, x2),
+                centerY: y2,
+            },
+            left: {
+                isClipped: !!clippedSides.left,
+                x1,
+                x2: x1,
+                y1,
+                y2,
+                centerX: x1,
+                centerY: center(y1, y2),
+            },
         };
 
         this.isValid = width >= 0 && height >= 0;

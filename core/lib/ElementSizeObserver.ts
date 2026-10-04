@@ -3,6 +3,8 @@ import { Rect } from './Rect';
 import { findClipParent } from './findClipParent';
 import type { RenderContext } from './RenderContext';
 import { forEachSide, type Sides } from './sides';
+import { LabelRenderer } from './LabelRenderer';
+import { formatRectSize } from './formatRectSize';
 
 const s = (d: unknown) => `${d}`;
 
@@ -13,12 +15,12 @@ export class ElementSizeObserver {
     private clipParent: Element;
     private clipParentRect: Rect;
 
-    // private renderContext: RenderContext;
-
     private elements: {
         ghostRect: SVGRectElement;
         sides: Sides<SVGLineElement>;
     };
+
+    private labelRenderer: LabelRenderer;
 
     public constructor(targetElement: HTMLElement | SVGElement, renderContext: RenderContext) {
         this.targetElement = targetElement;
@@ -26,8 +28,6 @@ export class ElementSizeObserver {
 
         this.targetRect = Rect.fromDOMRect(targetElement.getBoundingClientRect());
         this.clipParentRect = Rect.fromDOMRect(this.clipParent.getBoundingClientRect());
-
-        // this.renderContext = renderContext;
 
         this.elements = {
             ghostRect: renderContext.createElement('rect'),
@@ -51,6 +51,8 @@ export class ElementSizeObserver {
             setElementStyle(el, { fill: 'none', stroke: COLORS.blue });
             renderContext.appendChild(el);
         });
+
+        this.labelRenderer = new LabelRenderer(renderContext, 'bottom');
 
         this.render();
     }
@@ -77,6 +79,8 @@ export class ElementSizeObserver {
             line.setAttribute('y2', s(visibleSide.y2));
         });
 
+        this.labelRenderer.render(this.targetRect, formatRectSize(this.targetRect));
+
         // this.elements.sizeLabel.innerText = [formatRectSize(this.targetRect)]
         //     .filter(Boolean)
         //     .join(' | ');
@@ -97,6 +101,8 @@ export class ElementSizeObserver {
     }
 
     public destroy() {
+        this.labelRenderer.unmount();
+
         this.elements.ghostRect.remove();
 
         forEachSide(this.elements.sides, (e) => e.remove());

@@ -10,11 +10,17 @@ export class MeasuresController {
 
     private renderContext: RenderContext;
 
+    private currentReference: Node | null;
+    private autoObserveCleanup: () => void;
+
     constructor() {
         this.targets = new Map();
         this.lastRAF = 0;
 
         this.renderContext = new RenderContext();
+
+        this.currentReference = null;
+        this.autoObserveCleanup = () => {};
     }
 
     // TODO: rename
@@ -68,7 +74,35 @@ export class MeasuresController {
         }
     }
 
+    mouseMoveHandler(e: MouseEvent) {
+        if (e.target === this.currentReference) {
+            return;
+        }
+
+        if (this.currentReference) {
+            this.unobserve(this.currentReference);
+        }
+
+        if (e.target === document.body || !(e.target instanceof Node)) {
+            return;
+        }
+
+        this.observe(e.target);
+        this.currentReference = e.target;
+    }
+
+    autoObserve() {
+        const handler = (e: MouseEvent) => this.mouseMoveHandler(e);
+
+        document.addEventListener('mouseover', handler);
+
+        this.autoObserveCleanup = () => {
+            document.removeEventListener('mouseover', handler);
+        };
+    }
+
     public cleanup() {
+        this.autoObserveCleanup();
         this.stopRaf();
 
         this.targets.forEach((bb) => bb.destroy());

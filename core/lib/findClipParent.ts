@@ -1,23 +1,23 @@
-// TODO: fix bug with nested scrollable elements
+// TODO: must return all clip parents to intersect them
 export const findClipParent = function findClipParent(e: HTMLElement | SVGElement): Element | null {
-    if (e instanceof HTMLElement) {
-        return e.offsetParent;
-    }
+    let current: Element | null = e instanceof HTMLElement ? e.offsetParent : e.parentElement;
 
-    let current = e.parentElement;
-
-    while (current) {
-        if (current === document.body) {
-            return null;
-        }
-
+    while (current && current !== document.body) {
         const { overflowX, overflowY, clipPath } = getComputedStyle(current);
-        if (overflowX !== 'visible' || overflowY !== 'visible' || clipPath) {
+        if (
+            overflowX !== 'visible' ||
+            overflowY !== 'visible' ||
+            (clipPath && clipPath !== 'none')
+        ) {
             return current;
         }
 
-        current = current.parentElement;
+        if (current instanceof HTMLElement) {
+            current = current.offsetParent;
+        } else {
+            current = current.parentElement;
+        }
     }
 
-    return null;
+    return current;
 };
