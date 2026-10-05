@@ -109,6 +109,7 @@ export class Rect {
         );
     }
 
+    // TODO: rename to clipBy or smth
     public intersect(outer: Rect): Rect {
         const intersections: Sides<boolean> = {
             left: this.x1 < outer.x1,
@@ -125,7 +126,11 @@ export class Rect {
         return new Rect(x1, y1, x2 - x1, y2 - y1, intersections);
     }
 
-    public applyToSVG(rect: SVGRectElement) {
+    public formatSize(): string {
+        return `${this.width} ✕ ${this.height}`;
+    }
+
+    public applyToSVG(rect: SVGRectElement): void {
         rect.x.baseVal.value = this.x;
         rect.y.baseVal.value = this.y;
         rect.width.baseVal.value = this.width;

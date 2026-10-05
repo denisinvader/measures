@@ -1,14 +1,17 @@
+import { DistanceObserver } from './DistanceObserver';
 import { ElementSizeObserver } from './ElementSizeObserver';
 import { RenderContext } from './RenderContext';
 
 // TODO: https://jsfiddle.net/hodca/mcab43nd/87/
 // TODO: rename
 export class MeasuresController {
-    // TODO: rename to saved size-targets or smth
-    private targets: Map<Node, ElementSizeObserver>;
-    private lockedTargets: Set<Node>;
-    // TODO: rename
-    private lastRAF: number;
+    private sizeObservers: Map<Node, ElementSizeObserver>;
+    private lockedSizeNodes: Set<Node>;
+
+    private relationObservers: Map<Node, Map<Node, DistanceObserver>>;
+    // private lockedRelationObservers: Map<Node, Node>;
+
+    private lastRequestAnimationFrame: number;
 
     private renderContext: RenderContext;
 
@@ -19,9 +22,13 @@ export class MeasuresController {
     private lastHoverElement: Node | null;
 
     constructor() {
-        this.targets = new Map();
-        this.lockedTargets = new Set();
-        this.lastRAF = 0;
+        this.sizeObservers = new Map();
+        this.lockedSizeNodes = new Set();
+
+        this.relationObservers = new Map();
+        // this.lockedRelationObservers = new Map();
+
+        this.lastRequestAnimationFrame = 0;
 
         this.renderContext = new RenderContext();
 
@@ -33,32 +40,33 @@ export class MeasuresController {
 
     // TODO: rename
     private goRaf() {
-        this.lastRAF = requestAnimationFrame(() => this.tick());
+        this.lastRequestAnimationFrame = requestAnimationFrame(() => this.tick());
     }
 
     private stopRaf() {
-        cancelAnimationFrame(this.lastRAF);
+        cancelAnimationFrame(this.lastRequestAnimationFrame);
     }
 
     private tick() {
-        if (!this.targets.size) {
+        if (!this.sizeObservers.size && !this.relationObservers.size) {
             return;
         }
 
         this.renderContext.update();
 
-        this.targets.forEach((t) => t.update());
+        this.sizeObservers.forEach((t) => t.update());
+        this.relationObservers.forEach((s) => s.forEach((o) => o.update()));
 
         this.goRaf();
     }
 
     public observe(node: Node) {
-        if (this.targets.has(node)) {
+        if (this.sizeObservers.has(node)) {
             return;
         }
 
         if (node instanceof HTMLElement || node instanceof SVGElement) {
-            this.targets.set(node, new ElementSizeObserver(node, this.renderContext));
+            this.sizeObservers.set(node, new ElementSizeObserver(node, this.renderContext));
 
             this.stopRaf();
 
@@ -67,10 +75,10 @@ export class MeasuresController {
     }
 
     public unobserve(node: Node) {
-        if (this.lockedTargets.has(node)) {
+        if (this.lockedSizeNodes.has(node)) {
             return;
         }
-        const bb = this.targets.get(node);
+        const bb = this.sizeObservers.get(node);
         if (!bb) {
             return;
         }
@@ -78,10 +86,75 @@ export class MeasuresController {
         this.stopRaf();
 
         bb.destroy();
-        this.targets.delete(node);
+        this.sizeObservers.delete(node);
 
-        if (this.targets.size) {
+        if (this.sizeObservers.size || this.relationObservers.size) {
             this.goRaf();
+        }
+    }
+
+    public observeRelation(source: Node, target: Node) {
+        let sourceObservers = this.relationObservers.get(source);
+        if (sourceObservers && sourceObservers.has(target)) {
+            return;
+        }
+
+        if (
+            (source instanceof HTMLElement || source instanceof SVGElement) &&
+            (target instanceof HTMLElement || target instanceof SVGElement)
+        ) {
+            if (!sourceObservers) {
+                sourceObservers = new Map<Node, DistanceObserver>();
+                this.relationObservers.set(source, sourceObservers);
+            }
+
+            sourceObservers.set(target, new DistanceObserver(this.renderContext, source, target));
+
+            this.stopRaf();
+
+            this.goRaf();
+        }
+    }
+
+    public unobserveRelation(source: Node, target: Node) {
+        const sourceObservers = this.relationObservers.get(source);
+        if (!sourceObservers) {
+            return;
+        }
+
+        const bb = sourceObservers.get(target);
+        if (!bb) {
+            return;
+        }
+
+        this.stopRaf();
+
+        bb.unmount();
+
+        sourceObservers.delete(target);
+
+        if (!sourceObservers.size) {
+            this.relationObservers.delete(source);
+        }
+
+        if (this.sizeObservers.size || this.relationObservers.size) {
+            this.goRaf();
+        }
+    }
+
+    public unobserveAllRelations(source: Node) {
+        const sourceObservers = this.relationObservers.get(source);
+        if (!sourceObservers) {
+            return;
+        }
+
+        sourceObservers.forEach((d, target) => {
+            d.unmount();
+            sourceObservers.delete(target);
+        });
+
+        if (!sourceObservers.size) {
+            this.relationObservers.delete(source);
         }
     }
 
@@ -97,11 +170,11 @@ export class MeasuresController {
         //     return;
         // }
 
-        if (e.target === this.currentReference || e.target === this.relatedReference) {
-            return;
-        }
-
         if (!e.shiftKey || !this.currentReference) {
+            if (e.target === this.currentReference) {
+                return;
+            }
+
             if (this.currentReference) {
                 this.unobserve(this.currentReference);
             }
@@ -114,7 +187,7 @@ export class MeasuresController {
             this.currentReference = e.target;
 
             if (this.relatedReference) {
-                this.unobserve(this.relatedReference);
+                this.unobserveRelation(this.currentReference, this.relatedReference);
                 this.relatedReference = null;
             }
 
@@ -122,14 +195,18 @@ export class MeasuresController {
         }
 
         if (this.relatedReference) {
-            this.unobserve(this.relatedReference);
+            this.unobserveRelation(this.currentReference, this.relatedReference);
         }
 
-        if (e.target === document.body || !(e.target instanceof Node)) {
+        if (
+            e.target === this.currentReference ||
+            e.target === document.body ||
+            !(e.target instanceof Node)
+        ) {
             return;
         }
 
-        this.observe(e.target);
+        this.observeRelation(this.currentReference, e.target);
         this.relatedReference = e.target;
     }
 
@@ -144,17 +221,23 @@ export class MeasuresController {
 
         if (this.currentReference) {
             this.unobserve(this.currentReference);
+
+            if (this.relatedReference) {
+                this.unobserveRelation(this.currentReference, this.relatedReference);
+            }
+
             this.currentReference = null;
+            this.relatedReference = null;
         }
     }
 
     keyDownHandler(e: KeyboardEvent) {
         if (e.key === 'a') {
             if (this.currentReference) {
-                if (this.lockedTargets.has(this.currentReference)) {
-                    this.lockedTargets.delete(this.currentReference);
+                if (this.lockedSizeNodes.has(this.currentReference)) {
+                    this.lockedSizeNodes.delete(this.currentReference);
                 } else {
-                    this.lockedTargets.add(this.currentReference);
+                    this.lockedSizeNodes.add(this.currentReference);
                 }
             }
         }
@@ -172,6 +255,14 @@ export class MeasuresController {
             if (this.currentReference) {
                 this.unobserve(this.currentReference);
                 this.currentReference = null;
+            }
+        }
+
+        if (e.key === 'Shift') {
+            if (this.currentReference && this.relatedReference) {
+                this.unobserveRelation(this.currentReference, this.relatedReference);
+                this.currentReference = null;
+                this.relatedReference = null;
             }
         }
     }
@@ -203,7 +294,16 @@ export class MeasuresController {
         this.autoObserveCleanup();
         this.stopRaf();
 
-        this.targets.forEach((bb) => bb.destroy());
-        this.targets = new Map();
+        this.sizeObservers.forEach((bb) => bb.destroy());
+        this.sizeObservers = new Map();
+
+        this.relationObservers.forEach((s) => s.forEach((d) => d.unmount()));
+        this.relationObservers = new Map();
+    }
+
+    public destroy() {
+        this.cleanup();
+
+        this.renderContext.unmount();
     }
 }

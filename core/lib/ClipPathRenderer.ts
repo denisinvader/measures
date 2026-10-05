@@ -1,5 +1,5 @@
-import { findClipParents } from './findClipParents';
-import { Rect } from './Rect';
+import { findClipParents } from '../utils';
+import { Rect } from '../primitives/Rect';
 import type { RenderContext } from './RenderContext';
 
 const zeroRect = new Rect(0, 0, 0, 0);

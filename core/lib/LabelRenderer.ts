@@ -1,14 +1,16 @@
+import { setElementStyle, px } from '../utils';
+import { Rect } from '../primitives/Rect';
+import { type Side } from '../primitives/sides';
+import { COLORS } from './theme';
 import { RenderContext } from './RenderContext';
-import { Rect } from './Rect';
-import { type Side } from './sides';
-import { COLORS, setElementStyle } from '../styles';
-import { px } from './px';
 
 const FONT_SIZE = 12;
 const PADDING = 0.125 * FONT_SIZE;
 
 export class LabelRenderer {
     private referenceRect?: Rect;
+    // TODO: implement
+    // @ts-expect-error sefe
     private targetSide: Side;
     private text: string;
 

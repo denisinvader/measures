@@ -1,11 +1,9 @@
-import { setElementStyle } from '../styles';
-import { px } from './px';
+import { setElementStyle, px } from '../utils';
 
 const NS = 'http://www.w3.org/2000/svg';
 
-type Group = 'size' | 'relation' | 'label';
+type Group = 'ruler' | 'size' | 'relation' | 'label';
 
-// TODO: different render contexts for box, relation and labels
 export class RenderContext {
     private root: SVGElement;
     private defs: SVGDefsElement;
@@ -34,10 +32,12 @@ export class RenderContext {
         this.root.appendChild(this.defs);
 
         this.groups = {
+            ruler: this.create('g'),
             size: this.create('g'),
             relation: this.create('g'),
             label: this.create('g'),
         };
+        this.root.appendChild(this.groups.ruler);
         this.root.appendChild(this.groups.size);
         this.root.appendChild(this.groups.relation);
         this.root.appendChild(this.groups.label);
@@ -47,7 +47,7 @@ export class RenderContext {
         document.body.appendChild(this.root);
     }
 
-    public update() {
+    public update(): void {
         const width = window.innerWidth - 0.5;
         const height = window.innerHeight - 0.5;
 
@@ -65,7 +65,7 @@ export class RenderContext {
         return document.createElementNS(NS, tag);
     }
 
-    public append(target: Group | 'defs', element: SVGElement) {
+    public append(target: Group | 'defs', element: SVGElement): void {
         if (target === 'defs') {
             this.defs.appendChild(element);
             return;
@@ -74,13 +74,7 @@ export class RenderContext {
         this.groups[target].appendChild(element);
     }
 
-    /** @deprecated jff */
-    public createElement<T extends keyof SVGElementTagNameMap>(tag: T): SVGElementTagNameMap[T] {
-        return document.createElementNS(NS, tag);
-    }
-
-    /** @deprecated jff */
-    public appendChild(element: SVGElement) {
-        this.root.appendChild(element);
+    public unmount(): void {
+        this.root.remove();
     }
 }

@@ -1,9 +1,8 @@
-import { Rect } from './Rect';
-import type { RenderContext } from './RenderContext';
-import { LabelRenderer } from './LabelRenderer';
+import { Rect } from '../primitives/Rect';
 import { ClipPathRenderer } from './ClipPathRenderer';
+import { LabelRenderer } from './LabelRenderer';
 import { RectRenderer } from './RectRenderer';
-import { formatRectSize } from './formatRectSize';
+import { RenderContext } from './RenderContext';
 
 export class ElementSizeObserver {
     private targetElement: HTMLElement | SVGElement;
@@ -27,7 +26,7 @@ export class ElementSizeObserver {
 
         this.clipPathRenderer.update();
         this.rectRenderer.update(nextRect);
-        this.labelRenderer.update(nextRect, formatRectSize(nextRect));
+        this.labelRenderer.update(nextRect, nextRect.formatSize());
     }
 
     public destroy() {

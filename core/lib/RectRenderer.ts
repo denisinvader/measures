@@ -1,5 +1,6 @@
-import { COLORS, setElementStyle } from '../styles';
-import { Rect } from './Rect';
+import { setElementStyle } from '../utils';
+import { Rect } from '../primitives/Rect';
+import { COLORS } from './theme';
 import { RenderContext } from './RenderContext';
 
 export class RectRenderer {
