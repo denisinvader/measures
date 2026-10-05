@@ -7,67 +7,61 @@ import { px } from './px';
 const FONT_SIZE = 12;
 const PADDING = 0.125 * FONT_SIZE;
 
-const s = (v: unknown) => String(v);
-
 export class LabelRenderer {
     private referenceRect?: Rect;
     private targetSide: Side;
     private text: string;
 
-    private groupElement: SVGGElement;
-    private textElement: SVGTextElement;
-    private rectElement: SVGRectElement;
+    private $: {
+        root: SVGGElement;
+        text: SVGTextElement;
+        rect: SVGRectElement;
+    };
 
     constructor(renderContext: RenderContext, targetSide: Side) {
         this.text = '';
         this.targetSide = targetSide;
 
-        this.groupElement = renderContext.createElement('g');
+        this.$ = {
+            root: renderContext.create('g'),
+            text: renderContext.create('text'),
+            rect: renderContext.create('rect'),
+        };
 
-        this.rectElement = renderContext.createElement('rect');
-        // this.rectElement.setAttribute('rx', '3');
-        setElementStyle(this.rectElement, {
+        setElementStyle(this.$.rect, {
             fill: COLORS.blue,
             strokeWidth: '0',
         });
-        this.groupElement.appendChild(this.rectElement);
+        this.$.root.appendChild(this.$.rect);
 
-        this.textElement = renderContext.createElement('text');
-        setElementStyle(this.textElement, {
+        setElementStyle(this.$.text, {
             fill: COLORS.white,
             fontFamily: 'system-ui',
             fontSize: px(FONT_SIZE),
             fontWeight: 'bold',
             dominantBaseline: 'central',
         });
-        this.groupElement.appendChild(this.textElement);
+        this.$.text.setAttribute(
+            'transform',
+            `translate(${PADDING + 1} ${PADDING + FONT_SIZE / 2})`,
+        );
+        this.$.root.appendChild(this.$.text);
 
-        renderContext.appendChild(this.groupElement);
+        renderContext.append('label', this.$.root);
     }
 
     public render(referenceRect: Rect, text: string) {
+        this.$.text.textContent = text;
+
+        const textWidth = this.$.text.getBoundingClientRect().width;
+        const rect = new Rect(0, 0, textWidth + 2 * PADDING, FONT_SIZE + 2 * PADDING);
+
+        rect.applyToSVG(this.$.rect);
+
         const x = referenceRect.sides.bottom.centerX;
         const y = referenceRect.sides.bottom.centerY;
 
-        this.textElement.setAttribute('x', '0');
-        this.textElement.setAttribute('y', '0');
-        this.textElement.textContent = text;
-
-        const textWidth = this.textElement.getBoundingClientRect().width;
-        const width = textWidth + 2 * PADDING;
-        const height = FONT_SIZE + 2 * PADDING;
-
-        this.rectElement.setAttribute('x', s(-1));
-        this.rectElement.setAttribute('y', s(0));
-        this.rectElement.setAttribute('width', s(width));
-        this.rectElement.setAttribute('height', s(height));
-
-        this.textElement.setAttribute(
-            'transform',
-            `translate(${PADDING} ${PADDING + FONT_SIZE / 2})`,
-        );
-
-        this.groupElement.setAttribute('transform', `translate(${x - width / 2} ${y})`);
+        this.$.root.setAttribute('transform', `translate(${x - rect.width / 2} ${y})`);
 
         this.referenceRect = referenceRect;
         this.text = text;
@@ -82,8 +76,8 @@ export class LabelRenderer {
     }
 
     public unmount() {
-        this.textElement.remove();
-        this.rectElement.remove();
-        this.groupElement.remove();
+        this.$.text.remove();
+        this.$.rect.remove();
+        this.$.root.remove();
     }
 }

@@ -92,6 +92,10 @@ export class Rect {
         return new Rect(domRect.x, domRect.y, domRect.width, domRect.height);
     }
 
+    public static fromViewport(): Rect {
+        return new Rect(0, 0, window.innerWidth, window.innerHeight);
+    }
+
     public copy(): Rect {
         return new Rect(this.x, this.y, this.width, this.height);
     }
@@ -121,20 +125,10 @@ export class Rect {
         return new Rect(x1, y1, x2 - x1, y2 - y1, intersections);
     }
 
-    /** @deprecated */
-    public getIntersection(outer: Rect): [Rect, Sides<boolean>] {
-        const intersections: Sides<boolean> = {
-            left: this.x1 < outer.x1,
-            top: this.y1 < outer.y1,
-            right: this.x2 > outer.x2,
-            bottom: this.y2 > outer.y2,
-        };
-
-        const x1 = intersections.left ? outer.x1 : this.x1;
-        const x2 = intersections.right ? outer.x2 : this.x2;
-        const y1 = intersections.top ? outer.y1 : this.y1;
-        const y2 = intersections.bottom ? outer.y2 : this.y2;
-
-        return [new Rect(x1, y1, x2 - x1, y2 - y1, intersections), intersections];
+    public applyToSVG(rect: SVGRectElement) {
+        rect.x.baseVal.value = this.x;
+        rect.y.baseVal.value = this.y;
+        rect.width.baseVal.value = this.width;
+        rect.height.baseVal.value = this.height;
     }
 }

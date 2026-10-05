@@ -3,9 +3,13 @@ import { px } from './px';
 
 const NS = 'http://www.w3.org/2000/svg';
 
+type Group = 'size' | 'relation' | 'label';
+
 // TODO: different render contexts for box, relation and labels
 export class RenderContext {
     private root: SVGElement;
+    private defs: SVGDefsElement;
+    private groups: Record<Group, SVGGElement>;
 
     constructor() {
         this.root = document.createElementNS(NS, 'svg');
@@ -26,6 +30,18 @@ export class RenderContext {
             zIndex: Number.MAX_SAFE_INTEGER,
         });
 
+        this.defs = this.create('defs');
+        this.root.appendChild(this.defs);
+
+        this.groups = {
+            size: this.create('g'),
+            relation: this.create('g'),
+            label: this.create('g'),
+        };
+        this.root.appendChild(this.groups.size);
+        this.root.appendChild(this.groups.relation);
+        this.root.appendChild(this.groups.label);
+
         this.update();
 
         document.body.appendChild(this.root);
@@ -45,10 +61,25 @@ export class RenderContext {
         this.root.setAttribute('viewBox', `0 0 ${width} ${height}`);
     }
 
+    public create<T extends keyof SVGElementTagNameMap>(tag: T): SVGElementTagNameMap[T] {
+        return document.createElementNS(NS, tag);
+    }
+
+    public append(target: Group | 'defs', element: SVGElement) {
+        if (target === 'defs') {
+            this.defs.appendChild(element);
+            return;
+        }
+
+        this.groups[target].appendChild(element);
+    }
+
+    /** @deprecated jff */
     public createElement<T extends keyof SVGElementTagNameMap>(tag: T): SVGElementTagNameMap[T] {
         return document.createElementNS(NS, tag);
     }
 
+    /** @deprecated jff */
     public appendChild(element: SVGElement) {
         this.root.appendChild(element);
     }
