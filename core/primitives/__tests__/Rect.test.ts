@@ -50,10 +50,10 @@ test('Rect', () => {
             const intersection = inner.intersect(outer);
 
             assert.equal(intersection.equals(inner), true);
-            assert.equal(intersection.sides.top.isClipped, false);
-            assert.equal(intersection.sides.right.isClipped, false);
-            assert.equal(intersection.sides.bottom.isClipped, false);
-            assert.equal(intersection.sides.left.isClipped, false);
+            assert.equal(intersection.clippedSides.top, false);
+            assert.equal(intersection.clippedSides.right, false);
+            assert.equal(intersection.clippedSides.bottom, false);
+            assert.equal(intersection.clippedSides.left, false);
         });
 
         it('assert equals outer', () => {
@@ -62,10 +62,10 @@ test('Rect', () => {
             const intersection = outer.copy().intersect(outer);
 
             assert.equal(intersection.equals(outer), true);
-            assert.equal(intersection.sides.top.isClipped, false);
-            assert.equal(intersection.sides.right.isClipped, false);
-            assert.equal(intersection.sides.bottom.isClipped, false);
-            assert.equal(intersection.sides.left.isClipped, false);
+            assert.equal(intersection.clippedSides.top, false);
+            assert.equal(intersection.clippedSides.right, false);
+            assert.equal(intersection.clippedSides.bottom, false);
+            assert.equal(intersection.clippedSides.left, false);
         });
 
         it('assert contains outer', () => {
@@ -74,118 +74,118 @@ test('Rect', () => {
             const intersection = new Rect(0, 0, 100, 100).intersect(outer);
 
             assert.equal(intersection.equals(outer), true);
-            assert.equal(intersection.sides.top.isClipped, true);
-            assert.equal(intersection.sides.right.isClipped, true);
-            assert.equal(intersection.sides.bottom.isClipped, true);
-            assert.equal(intersection.sides.left.isClipped, true);
+            assert.equal(intersection.clippedSides.top, true);
+            assert.equal(intersection.clippedSides.right, true);
+            assert.equal(intersection.clippedSides.bottom, true);
+            assert.equal(intersection.clippedSides.left, true);
         });
 
         it('assert intersects top', () => {
             const intersection = new Rect(25, -10, 50, 50).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(25, 0, 50, 40)), true);
-            assert.equal(intersection.sides.top.isClipped, true);
-            assert.equal(intersection.sides.right.isClipped, false);
-            assert.equal(intersection.sides.bottom.isClipped, false);
-            assert.equal(intersection.sides.left.isClipped, false);
+            assert.equal(intersection.clippedSides.top, true);
+            assert.equal(intersection.clippedSides.right, false);
+            assert.equal(intersection.clippedSides.bottom, false);
+            assert.equal(intersection.clippedSides.left, false);
         });
 
         it('assert intersects right', () => {
             const intersection = new Rect(75, 25, 50, 50).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(75, 25, 25, 50)), true);
-            assert.equal(intersection.sides.top.isClipped, false);
-            assert.equal(intersection.sides.right.isClipped, true);
-            assert.equal(intersection.sides.bottom.isClipped, false);
-            assert.equal(intersection.sides.left.isClipped, false);
+            assert.equal(intersection.clippedSides.top, false);
+            assert.equal(intersection.clippedSides.right, true);
+            assert.equal(intersection.clippedSides.bottom, false);
+            assert.equal(intersection.clippedSides.left, false);
         });
 
         it('assert intersects bottom', () => {
             const intersection = new Rect(25, 75, 50, 50).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(25, 75, 50, 25)), true);
-            assert.equal(intersection.sides.top.isClipped, false);
-            assert.equal(intersection.sides.right.isClipped, false);
-            assert.equal(intersection.sides.bottom.isClipped, true);
-            assert.equal(intersection.sides.left.isClipped, false);
+            assert.equal(intersection.clippedSides.top, false);
+            assert.equal(intersection.clippedSides.right, false);
+            assert.equal(intersection.clippedSides.bottom, true);
+            assert.equal(intersection.clippedSides.left, false);
         });
 
         it('assert intersects left', () => {
             const intersection = new Rect(-10, 25, 50, 50).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(0, 25, 40, 50)), true);
-            assert.equal(intersection.sides.top.isClipped, false);
-            assert.equal(intersection.sides.right.isClipped, false);
-            assert.equal(intersection.sides.bottom.isClipped, false);
-            assert.equal(intersection.sides.left.isClipped, true);
+            assert.equal(intersection.clippedSides.top, false);
+            assert.equal(intersection.clippedSides.right, false);
+            assert.equal(intersection.clippedSides.bottom, false);
+            assert.equal(intersection.clippedSides.left, true);
         });
 
         it('assert intersects top-left', () => {
             const intersection = new Rect(-10, -10, 50, 50).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(0, 0, 40, 40)), true);
-            assert.equal(intersection.sides.top.isClipped, true);
-            assert.equal(intersection.sides.right.isClipped, false);
-            assert.equal(intersection.sides.bottom.isClipped, false);
-            assert.equal(intersection.sides.left.isClipped, true);
+            assert.equal(intersection.clippedSides.top, true);
+            assert.equal(intersection.clippedSides.right, false);
+            assert.equal(intersection.clippedSides.bottom, false);
+            assert.equal(intersection.clippedSides.left, true);
         });
 
         it('assert intersects top-right', () => {
             const intersection = new Rect(80, -10, 50, 50).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(80, 0, 20, 40)), true);
-            assert.equal(intersection.sides.top.isClipped, true);
-            assert.equal(intersection.sides.right.isClipped, true);
-            assert.equal(intersection.sides.bottom.isClipped, false);
-            assert.equal(intersection.sides.left.isClipped, false);
+            assert.equal(intersection.clippedSides.top, true);
+            assert.equal(intersection.clippedSides.right, true);
+            assert.equal(intersection.clippedSides.bottom, false);
+            assert.equal(intersection.clippedSides.left, false);
         });
 
         it('assert intersects bottom-left', () => {
             const intersection = new Rect(-25, 75, 50, 50).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(0, 75, 25, 25)), true);
-            assert.equal(intersection.sides.top.isClipped, false);
-            assert.equal(intersection.sides.right.isClipped, false);
-            assert.equal(intersection.sides.bottom.isClipped, true);
-            assert.equal(intersection.sides.left.isClipped, true);
+            assert.equal(intersection.clippedSides.top, false);
+            assert.equal(intersection.clippedSides.right, false);
+            assert.equal(intersection.clippedSides.bottom, true);
+            assert.equal(intersection.clippedSides.left, true);
         });
 
         it('assert intersects bottom-right', () => {
             const intersection = new Rect(80, 95, 50, 50).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(80, 95, 20, 5)), true);
-            assert.equal(intersection.sides.top.isClipped, false);
-            assert.equal(intersection.sides.right.isClipped, true);
-            assert.equal(intersection.sides.bottom.isClipped, true);
-            assert.equal(intersection.sides.left.isClipped, false);
+            assert.equal(intersection.clippedSides.top, false);
+            assert.equal(intersection.clippedSides.right, true);
+            assert.equal(intersection.clippedSides.bottom, true);
+            assert.equal(intersection.clippedSides.left, false);
         });
 
         it('assert intersects top-bottom-left', () => {
             const intersection = new Rect(-25, -25, 50, 150).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(0, 0, 25, 100)), true);
-            assert.equal(intersection.sides.top.isClipped, true);
-            assert.equal(intersection.sides.right.isClipped, false);
-            assert.equal(intersection.sides.bottom.isClipped, true);
-            assert.equal(intersection.sides.left.isClipped, true);
+            assert.equal(intersection.clippedSides.top, true);
+            assert.equal(intersection.clippedSides.right, false);
+            assert.equal(intersection.clippedSides.bottom, true);
+            assert.equal(intersection.clippedSides.left, true);
         });
 
         it('assert intersects top-bottom-right', () => {
             const intersection = new Rect(80, -10, 50, 150).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(80, 0, 20, 100)), true);
-            assert.equal(intersection.sides.top.isClipped, true);
-            assert.equal(intersection.sides.right.isClipped, true);
-            assert.equal(intersection.sides.bottom.isClipped, true);
-            assert.equal(intersection.sides.left.isClipped, false);
+            assert.equal(intersection.clippedSides.top, true);
+            assert.equal(intersection.clippedSides.right, true);
+            assert.equal(intersection.clippedSides.bottom, true);
+            assert.equal(intersection.clippedSides.left, false);
         });
 
         it('assert intersects left-right-top', () => {
             const intersection = new Rect(-25, -25, 200, 50).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(0, 0, 100, 25)), true);
-            assert.equal(intersection.sides.top.isClipped, true);
-            assert.equal(intersection.sides.right.isClipped, true);
-            assert.equal(intersection.sides.bottom.isClipped, false);
-            assert.equal(intersection.sides.left.isClipped, true);
+            assert.equal(intersection.clippedSides.top, true);
+            assert.equal(intersection.clippedSides.right, true);
+            assert.equal(intersection.clippedSides.bottom, false);
+            assert.equal(intersection.clippedSides.left, true);
         });
 
         it('assert intersects left-right-bottom', () => {
             const intersection = new Rect(-25, 80, 200, 100).intersect(new Rect(0, 0, 100, 100));
             assert.equal(intersection.equals(new Rect(0, 80, 100, 20)), true);
-            assert.equal(intersection.sides.top.isClipped, false);
-            assert.equal(intersection.sides.right.isClipped, true);
-            assert.equal(intersection.sides.bottom.isClipped, true);
-            assert.equal(intersection.sides.left.isClipped, true);
+            assert.equal(intersection.clippedSides.top, false);
+            assert.equal(intersection.clippedSides.right, true);
+            assert.equal(intersection.clippedSides.bottom, true);
+            assert.equal(intersection.clippedSides.left, true);
         });
 
         it('assert invalid intersections', () => {

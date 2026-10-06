@@ -1,8 +1,7 @@
+import { round } from '../utils';
+import { AxisSegment } from './AxisSegment';
+import { Interval } from './Interval';
 import type { Sides } from './sides';
-
-const round = (v: number) => Math.round(v * 100) / 100;
-
-const center = (p1: number, p2: number) => p1 + (p2 - p1) / 2;
 
 export class Rect {
     public readonly x: number;
@@ -13,15 +12,10 @@ export class Rect {
     public readonly x2: number;
     public readonly y1: number;
     public readonly y2: number;
-    public readonly sides: Sides<{
-        isClipped: boolean;
-        x1: number;
-        x2: number;
-        y1: number;
-        y2: number;
-        centerX: number;
-        centerY: number;
-    }>;
+    public readonly clippedSides: Sides<boolean>;
+    public readonly sides: Sides<AxisSegment>;
+    public readonly xInterval: Interval;
+    public readonly yInterval: Interval;
     public readonly isValid: boolean;
 
     constructor(
@@ -46,44 +40,20 @@ export class Rect {
         this.x2 = x2;
         this.y1 = y1;
         this.y2 = y2;
-        this.sides = {
-            top: {
-                isClipped: !!clippedSides.top,
-                x1,
-                x2,
-                y1,
-                y2: y1,
-                centerX: center(x1, x2),
-                centerY: y1,
-            },
-            right: {
-                isClipped: !!clippedSides.right,
-                x1: x2,
-                x2,
-                y1,
-                y2,
-                centerX: x2,
-                centerY: center(y2, y1),
-            },
-            bottom: {
-                isClipped: !!clippedSides.bottom,
-                x1,
-                x2,
-                y1: y2,
-                y2,
-                centerX: center(x1, x2),
-                centerY: y2,
-            },
-            left: {
-                isClipped: !!clippedSides.left,
-                x1,
-                x2: x1,
-                y1,
-                y2,
-                centerX: x1,
-                centerY: center(y1, y2),
-            },
+        this.clippedSides = {
+            top: !!clippedSides.top,
+            right: !!clippedSides.right,
+            bottom: !!clippedSides.bottom,
+            left: !!clippedSides.left,
         };
+        this.sides = {
+            top: new AxisSegment('x', x1, x2, y1),
+            right: new AxisSegment('y', y1, y2, x2),
+            bottom: new AxisSegment('x', x1, x2, y2),
+            left: new AxisSegment('y', y1, y2, x1),
+        };
+        this.xInterval = new Interval(x1, x2);
+        this.yInterval = new Interval(y1, y2);
 
         this.isValid = width >= 0 && height >= 0;
     }

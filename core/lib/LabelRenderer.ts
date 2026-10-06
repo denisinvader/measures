@@ -3,12 +3,13 @@ import { Rect } from '../primitives/Rect';
 import { type Side } from '../primitives/sides';
 import { COLORS } from './theme';
 import { RenderContext } from './RenderContext';
+import { AxisSegment } from '../primitives/AxisSegment';
 
-const FONT_SIZE = 12;
+const FONT_SIZE = 11;
 const PADDING = 0.125 * FONT_SIZE;
 
 export class LabelRenderer {
-    private referenceRect?: Rect;
+    private reference?: AxisSegment | Rect;
     // TODO: implement
     // @ts-expect-error sefe
     private targetSide: Side;
@@ -20,7 +21,7 @@ export class LabelRenderer {
         rect: SVGRectElement;
     };
 
-    constructor(renderContext: RenderContext, targetSide: Side) {
+    constructor(renderContext: RenderContext, targetSide: Side, fill: string = COLORS.blue) {
         this.text = '';
         this.targetSide = targetSide;
 
@@ -31,7 +32,7 @@ export class LabelRenderer {
         };
 
         setElementStyle(this.$.rect, {
-            fill: COLORS.blue,
+            fill,
             strokeWidth: '0',
         });
         this.$.root.appendChild(this.$.rect);
@@ -52,7 +53,10 @@ export class LabelRenderer {
         renderContext.append('label', this.$.root);
     }
 
-    public render(referenceRect: Rect, text: string) {
+    public render(reference: AxisSegment | Rect, text: string) {
+        const { center } = reference instanceof Rect ? reference.sides.bottom : reference;
+        const { x, y } = center;
+
         this.$.text.textContent = text;
 
         const textWidth = this.$.text.getBoundingClientRect().width;
@@ -60,21 +64,27 @@ export class LabelRenderer {
 
         rect.applyToSVG(this.$.rect);
 
-        const x = referenceRect.sides.bottom.centerX;
-        const y = referenceRect.sides.bottom.centerY;
-
         this.$.root.setAttribute('transform', `translate(${x - rect.width / 2} ${y})`);
 
-        this.referenceRect = referenceRect;
+        this.reference = reference;
         this.text = text;
     }
 
-    public update(referenceRect: Rect, text: string) {
-        if (this.text === text && this.referenceRect && this.referenceRect.equals(referenceRect)) {
+    public update(reference: AxisSegment | Rect, text: string) {
+        if (
+            this.text === text &&
+            this.reference &&
+            ((reference instanceof Rect &&
+                this.reference instanceof Rect &&
+                this.reference.equals(reference)) ||
+                (reference instanceof AxisSegment &&
+                    this.reference instanceof AxisSegment &&
+                    this.reference.equals(reference)))
+        ) {
             return;
         }
 
-        this.render(referenceRect, text);
+        this.render(reference, text);
     }
 
     public unmount() {

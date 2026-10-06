@@ -4,20 +4,14 @@ import assert from 'node:assert/strict';
 import { Interval } from '../Interval';
 
 test('Interval', () => {
-    it('has start, end and center', () => {
+    it('calculates middle', () => {
         const interval = new Interval(0, 10);
-
-        assert.equal(interval.start, 0);
-        assert.equal(interval.end, 10);
-        assert.equal(interval.center, 5);
+        assert.equal(interval.middle, 5);
     });
 
-    it('works with negative values', () => {
-        const interval = new Interval(-10, 10);
-
-        assert.equal(interval.start, -10);
-        assert.equal(interval.end, 10);
-        assert.equal(interval.center, 0);
+    it('calculates length', () => {
+        const interval = new Interval(2, 10);
+        assert.equal(interval.length, 8);
     });
 
     it('clamps start and end', () => {
@@ -25,7 +19,17 @@ test('Interval', () => {
 
         assert.equal(interval.start, 50);
         assert.equal(interval.end, 100);
-        assert.equal(interval.center, 75);
+        assert.equal(interval.middle, 75);
+        assert.equal(interval.length, 50);
+    });
+
+    it('works with negative values', () => {
+        const interval = new Interval(-10, 10);
+
+        assert.equal(interval.start, -10);
+        assert.equal(interval.end, 10);
+        assert.equal(interval.middle, 0);
+        assert.equal(interval.length, 20);
     });
 
     test('.has(value)', () => {
@@ -60,7 +64,7 @@ test('Interval', () => {
         });
     });
 
-    test('.getRelationTo(othen)', () => {
+    test('.getRelationTo(other)', () => {
         it('returns "before" relation when other.start greater or equals end', () => {
             const interval = new Interval(5, 10);
 
@@ -71,6 +75,11 @@ test('Interval', () => {
             const interval = new Interval(5, 10);
 
             assert.equal(interval.getRelationTo(new Interval(3, 5)), Interval.RELATION_AFTER);
+        });
+
+        it('returns "contains" relation when other fully inside interval', () => {
+            const interval = new Interval(5, 10);
+            assert.equal(interval.getRelationTo(new Interval(6, 8)), Interval.RELATION_CONTAINS);
         });
 
         it('returns "overlaps" relation when intervals are equal', () => {
@@ -87,8 +96,36 @@ test('Interval', () => {
 
             assert.equal(interval.getRelationTo(new Interval(0, 100)), Interval.RELATION_OVERLAPS);
             assert.equal(interval.getRelationTo(new Interval(3, 20)), Interval.RELATION_OVERLAPS);
-            assert.equal(interval.getRelationTo(new Interval(20, 40)), Interval.RELATION_OVERLAPS);
             assert.equal(interval.getRelationTo(new Interval(40, 73)), Interval.RELATION_OVERLAPS);
+        });
+    });
+
+    test('.intersectWith(other)', () => {
+        it('assert 1', () => {
+            const interval = new Interval(20, 50);
+            const intersection = interval.intersectWith(new Interval(10, 35));
+
+            assert.equal(intersection.start, 20);
+            assert.equal(intersection.end, 35);
+        });
+
+        it('assert 2', () => {
+            const interval = new Interval(20, 50);
+            const intersection = interval.intersectWith(new Interval(39, 100));
+
+            assert.equal(intersection.start, 39);
+            assert.equal(intersection.end, 50);
+        });
+
+        it('assert 3', () => {
+            const interval1 = new Interval(20, 50);
+            const interval2 = new Interval(20, 50);
+
+            const intersection1 = interval1.intersectWith(interval2);
+            const intersection2 = interval2.intersectWith(interval1);
+
+            assert.equal(intersection1.start, intersection2.start);
+            assert.equal(intersection1.end, intersection2.end);
         });
     });
 });

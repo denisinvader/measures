@@ -261,6 +261,7 @@ export class MeasuresController {
         if (e.key === 'Shift') {
             if (this.currentReference && this.relatedReference) {
                 this.unobserveRelation(this.currentReference, this.relatedReference);
+                this.unobserve(this.currentReference);
                 this.currentReference = null;
                 this.relatedReference = null;
             }
