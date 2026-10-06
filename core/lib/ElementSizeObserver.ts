@@ -3,6 +3,7 @@ import { ClipPathRenderer } from './ClipPathRenderer';
 import { LabelRenderer } from './LabelRenderer';
 import { RectRenderer } from './RectRenderer';
 import { RenderContext } from './RenderContext';
+import { COLORS } from './theme';
 
 export class ElementSizeObserver {
     private targetElement: HTMLElement | SVGElement;
@@ -15,7 +16,7 @@ export class ElementSizeObserver {
         this.targetElement = referenceElement;
 
         this.clipPathRenderer = new ClipPathRenderer(renderContext, referenceElement);
-        this.labelRenderer = new LabelRenderer(renderContext, 'bottom');
+        this.labelRenderer = new LabelRenderer(renderContext, 'bottom', COLORS.blue);
         this.rectRenderer = new RectRenderer(renderContext, this.clipPathRenderer.id);
 
         this.update();
@@ -26,7 +27,10 @@ export class ElementSizeObserver {
 
         this.clipPathRenderer.update();
         this.rectRenderer.update(nextRect);
-        this.labelRenderer.update(nextRect, nextRect.formatSize());
+        this.labelRenderer.update({
+            reference: nextRect,
+            text: nextRect.formatSize(),
+        });
     }
 
     public destroy() {

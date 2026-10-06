@@ -17,6 +17,10 @@ export class Line extends Interval {
         this.tangent = tangent;
     }
 
+    public toString(): string {
+        return `Line(${this.axis},${this.start},${this.end},${this.tangent})`;
+    }
+
     public get center(): Point {
         return this.axis === 'x'
             ? { x: this.middle, y: this.tangent }
@@ -37,16 +41,11 @@ export class Line extends Interval {
         ];
     }
 
-    public equals(other: Line) {
-        return (
-            this.axis === other.axis &&
-            this.tangent === other.tangent &&
-            this.start === other.start &&
-            this.end === other.end
-        );
+    public equals(other: Line): boolean {
+        return this.toString() === other.toString();
     }
 
-    public applyToSVGLine(line: SVGLineElement) {
+    public applyToSVGLine(line: SVGLineElement): void {
         const [start, end] = this.points;
 
         line.x1.baseVal.value = start.x;
@@ -55,7 +54,7 @@ export class Line extends Interval {
         line.y2.baseVal.value = end.y;
     }
 
-    public formatLength() {
+    public formatLength(): string {
         return round(this.length).toString();
     }
 }

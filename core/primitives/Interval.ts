@@ -16,7 +16,11 @@ export class Interval {
         this.middle = this.start + this.length / 2;
     }
 
-    public has(value: number) {
+    public toString(): string {
+        return `Interval(${this.start},${this.end})`;
+    }
+
+    public has(value: number): boolean {
         return this.start <= value && this.end >= value;
     }
 
@@ -36,7 +40,7 @@ export class Interval {
         return Interval.RELATION_OVERLAPS;
     }
 
-    public intersectWith(other: Interval) {
+    public intersectWith(other: Interval): Interval {
         return new Interval(Math.max(this.start, other.start), Math.min(this.end, other.end));
     }
 }

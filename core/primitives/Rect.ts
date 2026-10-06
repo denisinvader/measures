@@ -58,6 +58,10 @@ export class Rect {
         this.isValid = width >= 0 && height >= 0;
     }
 
+    public toString(): string {
+        return `Rect(${this.x},${this.y},${this.width},${this.height})`;
+    }
+
     public static fromDOMRect(domRect: DOMRect): Rect {
         return new Rect(domRect.x, domRect.y, domRect.width, domRect.height);
     }
@@ -71,12 +75,7 @@ export class Rect {
     }
 
     public equals(other: Rect): boolean {
-        return (
-            this.x === other.x &&
-            this.y === other.y &&
-            this.width === other.width &&
-            this.height === other.height
-        );
+        return this.toString() === other.toString();
     }
 
     // TODO: rename to clipBy or smth

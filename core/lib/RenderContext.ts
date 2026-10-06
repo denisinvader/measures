@@ -1,4 +1,4 @@
-import { setElementStyle, px } from '../utils';
+import { setElementStyle } from '../utils';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -52,10 +52,10 @@ export class RenderContext {
         const height = window.innerHeight - 0.5;
 
         setElementStyle(this.root, {
-            left: px(document.documentElement.scrollLeft),
-            top: px(document.documentElement.scrollTop),
-            width: px(width),
-            height: px(height),
+            left: `${document.documentElement.scrollLeft}px`,
+            top: `${document.documentElement.scrollTop}px`,
+            width: `${width}px`,
+            height: `${height}px`,
         });
 
         this.root.setAttribute('viewBox', `0 0 ${width} ${height}`);

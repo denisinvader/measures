@@ -117,7 +117,11 @@ export class DistanceLinesRenderer {
 
             segment.applyToSVGLine(lines.join);
 
-            lines.label.update(segment, segment.formatLength());
+            lines.label.update({
+                reference: segment,
+                text: segment.formatLength(),
+                hidden: !segment.length,
+            });
 
             if (
                 segment.length &&

@@ -1,4 +1,4 @@
-import { setElementStyle, px } from '../utils';
+import { setElementStyle } from '../utils';
 import { Rect } from '../primitives/Rect';
 import { type Side } from '../primitives/sides';
 import { COLORS } from './theme';
@@ -8,12 +8,18 @@ import { Line } from '../primitives/Line';
 const FONT_SIZE = 11;
 const PADDING = 0.125 * FONT_SIZE;
 
+interface LabelViewState {
+    reference: Line | Rect;
+    text: string;
+    hidden?: boolean;
+}
+
 export class LabelRenderer {
-    private reference?: Line | Rect;
-    // TODO: implement
+    // FIXME: implement
     // @ts-expect-error sefe
     private targetSide: Side;
-    private text: string;
+
+    private state: Required<LabelViewState>;
 
     private $: {
         root: SVGGElement;
@@ -21,9 +27,14 @@ export class LabelRenderer {
         rect: SVGRectElement;
     };
 
-    constructor(renderContext: RenderContext, targetSide: Side, fill: string = COLORS.blue) {
-        this.text = '';
+    constructor(renderContext: RenderContext, targetSide: Side, fill: string) {
         this.targetSide = targetSide;
+
+        this.state = {
+            reference: new Rect(0, 0, 0, 0),
+            text: '',
+            hidden: true,
+        };
 
         this.$ = {
             root: renderContext.create('g'),
@@ -40,7 +51,7 @@ export class LabelRenderer {
         setElementStyle(this.$.text, {
             fill: COLORS.white,
             fontFamily: 'system-ui',
-            fontSize: px(FONT_SIZE),
+            fontSize: `${FONT_SIZE}px`,
             fontWeight: 'bold',
             dominantBaseline: 'central',
         });
@@ -53,7 +64,15 @@ export class LabelRenderer {
         renderContext.append('label', this.$.root);
     }
 
-    public render(reference: Line | Rect, text: string) {
+    public render({ reference, text, hidden }: LabelViewState) {
+        if (hidden) {
+            this.$.root.setAttribute('opacity', '0');
+            return;
+        }
+        if (!hidden && this.state.hidden) {
+            this.$.root.removeAttribute('opacity');
+        }
+
         const { center } = reference instanceof Rect ? reference.sides.bottom : reference;
         const { x, y } = center;
 
@@ -65,26 +84,20 @@ export class LabelRenderer {
         rect.applyToSVGRect(this.$.rect);
 
         this.$.root.setAttribute('transform', `translate(${x - rect.width / 2} ${y})`);
-
-        this.reference = reference;
-        this.text = text;
     }
 
-    public update(reference: Line | Rect, text: string) {
+    public update({ reference, text, hidden = false }: LabelViewState) {
         if (
-            this.text === text &&
-            this.reference &&
-            ((reference instanceof Rect &&
-                this.reference instanceof Rect &&
-                this.reference.equals(reference)) ||
-                (reference instanceof Line &&
-                    this.reference instanceof Line &&
-                    this.reference.equals(reference)))
+            this.state.text === text &&
+            this.state.reference.toString() === reference.toString() &&
+            this.state.hidden === !!hidden
         ) {
             return;
         }
 
-        this.render(reference, text);
+        this.render({ reference, text, hidden });
+
+        this.state = { reference, text, hidden };
     }
 
     public unmount() {
