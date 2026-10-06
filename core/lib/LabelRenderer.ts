@@ -3,13 +3,13 @@ import { Rect } from '../primitives/Rect';
 import { type Side } from '../primitives/sides';
 import { COLORS } from './theme';
 import { RenderContext } from './RenderContext';
-import { AxisSegment } from '../primitives/AxisSegment';
+import { Line } from '../primitives/Line';
 
 const FONT_SIZE = 11;
 const PADDING = 0.125 * FONT_SIZE;
 
 export class LabelRenderer {
-    private reference?: AxisSegment | Rect;
+    private reference?: Line | Rect;
     // TODO: implement
     // @ts-expect-error sefe
     private targetSide: Side;
@@ -53,7 +53,7 @@ export class LabelRenderer {
         renderContext.append('label', this.$.root);
     }
 
-    public render(reference: AxisSegment | Rect, text: string) {
+    public render(reference: Line | Rect, text: string) {
         const { center } = reference instanceof Rect ? reference.sides.bottom : reference;
         const { x, y } = center;
 
@@ -62,7 +62,7 @@ export class LabelRenderer {
         const textWidth = this.$.text.getBoundingClientRect().width;
         const rect = new Rect(0, 0, textWidth + 2 * PADDING, FONT_SIZE + 2 * PADDING);
 
-        rect.applyToSVG(this.$.rect);
+        rect.applyToSVGRect(this.$.rect);
 
         this.$.root.setAttribute('transform', `translate(${x - rect.width / 2} ${y})`);
 
@@ -70,15 +70,15 @@ export class LabelRenderer {
         this.text = text;
     }
 
-    public update(reference: AxisSegment | Rect, text: string) {
+    public update(reference: Line | Rect, text: string) {
         if (
             this.text === text &&
             this.reference &&
             ((reference instanceof Rect &&
                 this.reference instanceof Rect &&
                 this.reference.equals(reference)) ||
-                (reference instanceof AxisSegment &&
-                    this.reference instanceof AxisSegment &&
+                (reference instanceof Line &&
+                    this.reference instanceof Line &&
                     this.reference.equals(reference)))
         ) {
             return;

@@ -1,5 +1,5 @@
 import { round } from '../utils';
-import { AxisSegment } from './AxisSegment';
+import { Line } from './Line';
 import { Interval } from './Interval';
 import type { Sides } from './sides';
 
@@ -13,7 +13,7 @@ export class Rect {
     public readonly y1: number;
     public readonly y2: number;
     public readonly clippedSides: Sides<boolean>;
-    public readonly sides: Sides<AxisSegment>;
+    public readonly sides: Sides<Line>;
     public readonly xInterval: Interval;
     public readonly yInterval: Interval;
     public readonly isValid: boolean;
@@ -47,10 +47,10 @@ export class Rect {
             left: !!clippedSides.left,
         };
         this.sides = {
-            top: new AxisSegment('x', x1, x2, y1),
-            right: new AxisSegment('y', y1, y2, x2),
-            bottom: new AxisSegment('x', x1, x2, y2),
-            left: new AxisSegment('y', y1, y2, x1),
+            top: new Line('x', x1, x2, y1),
+            right: new Line('y', y1, y2, x2),
+            bottom: new Line('x', x1, x2, y2),
+            left: new Line('y', y1, y2, x1),
         };
         this.xInterval = new Interval(x1, x2);
         this.yInterval = new Interval(y1, y2);
@@ -100,7 +100,7 @@ export class Rect {
         return `${this.width} ✕ ${this.height}`;
     }
 
-    public applyToSVG(rect: SVGRectElement): void {
+    public applyToSVGRect(rect: SVGRectElement): void {
         rect.x.baseVal.value = this.x;
         rect.y.baseVal.value = this.y;
         rect.width.baseVal.value = this.width;

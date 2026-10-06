@@ -4,10 +4,10 @@ import { forEachSide, type Side, type Sides } from '../primitives/sides';
 import { COLORS } from './theme';
 import type { RenderContext } from './RenderContext';
 import { Interval } from '../primitives/Interval';
-import { AxisSegment } from '../primitives/AxisSegment';
+import { Line } from '../primitives/Line';
 import { LabelRenderer } from './LabelRenderer';
 
-const ZERO_SEGMENT = new AxisSegment('x', 0, 0, 0);
+const ZERO_SEGMENT = new Line('x', 0, 0, 0);
 
 export class DistanceLinesRenderer {
     private sourceRect?: Rect;
@@ -86,11 +86,11 @@ export class DistanceLinesRenderer {
         }
 
         forEachSide(this.$, (lines, side) => {
-            ZERO_SEGMENT.applyToSVG(lines.tangent);
+            ZERO_SEGMENT.applyToSVGLine(lines.tangent);
 
             const targetSide = mapSidesToRender[side];
             if (!targetSide) {
-                ZERO_SEGMENT.applyToSVG(lines.join);
+                ZERO_SEGMENT.applyToSVGLine(lines.join);
                 return;
             }
 
@@ -108,14 +108,14 @@ export class DistanceLinesRenderer {
                 // TODO: intersect intervals and get middle
             }
 
-            const segment = new AxisSegment(
+            const segment = new Line(
                 sourceRectSide.tangentAxis,
                 sourceRectSide.tangent,
                 targetRectSide.tangent,
                 segmentTangent,
             );
 
-            segment.applyToSVG(lines.join);
+            segment.applyToSVGLine(lines.join);
 
             lines.label.update(segment, segment.formatLength());
 
@@ -127,14 +127,14 @@ export class DistanceLinesRenderer {
                 const key =
                     relations[targetRectSide.axis] === Interval.RELATION_BEFORE ? 'start' : 'end';
 
-                const support = new AxisSegment(
+                const support = new Line(
                     sourceRectSide.axis,
                     sourceRectSide[key],
                     targetRectSide[key],
                     targetRectSide.tangent,
                 );
 
-                support.applyToSVG(lines.tangent);
+                support.applyToSVGLine(lines.tangent);
             }
         });
 

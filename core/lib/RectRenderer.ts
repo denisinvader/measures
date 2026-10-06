@@ -36,8 +36,8 @@ export class RectRenderer {
     }
 
     public render(referenceRect: Rect) {
-        referenceRect.applyToSVG(this.$.rect);
-        referenceRect.applyToSVG(this.$.ghostRect);
+        referenceRect.applyToSVGRect(this.$.rect);
+        referenceRect.applyToSVGRect(this.$.ghostRect);
     }
 
     public update(referenceRect: Rect) {

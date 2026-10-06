@@ -38,7 +38,7 @@ export class ClipPathRenderer {
     }
 
     public render() {
-        this.clipRect.applyToSVG(this.$.rect);
+        this.clipRect.applyToSVGRect(this.$.rect);
     }
 
     public update() {
