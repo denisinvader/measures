@@ -1,15 +1,14 @@
-import { Rect } from '../primitives/Rect';
+import { Rect } from '../primitives';
 import { getTextNodeRange, isValidTextNode } from '../utils';
-import { DistanceObserver } from './DistanceObserver';
-import { ElementSizeObserver } from './ElementSizeObserver';
+import { RelationObserver } from './RelationObserver';
+import { SizeObserver } from './SizeObserver';
 import { RenderContext } from './RenderContext';
 
-// TODO: rename
 export class MeasuresController {
-    private sizeObservers: Map<Node, ElementSizeObserver>;
+    private sizeObservers: Map<Node, SizeObserver>;
     private lockedSizeNodes: Set<Node>;
 
-    private relationObservers: Map<Node, Map<Node, DistanceObserver>>;
+    private relationObservers: Map<Node, Map<Node, RelationObserver>>;
     // TODO: implement relations locks
     // private lockedRelationObservers: Map<Node, Node>;
 
@@ -74,7 +73,7 @@ export class MeasuresController {
         }
 
         if (isValidTextNode(node) || node instanceof HTMLElement || node instanceof SVGElement) {
-            this.sizeObservers.set(node, new ElementSizeObserver(node, this.renderContext));
+            this.sizeObservers.set(node, new SizeObserver(node, this.renderContext));
 
             this.cancelLastRAF();
 
@@ -116,11 +115,11 @@ export class MeasuresController {
                 target instanceof SVGElement)
         ) {
             if (!sourceObservers) {
-                sourceObservers = new Map<Node, DistanceObserver>();
+                sourceObservers = new Map<Node, RelationObserver>();
                 this.relationObservers.set(source, sourceObservers);
             }
 
-            sourceObservers.set(target, new DistanceObserver(this.renderContext, source, target));
+            sourceObservers.set(target, new RelationObserver(this.renderContext, source, target));
 
             this.cancelLastRAF();
 

@@ -1,22 +1,19 @@
-import { setElementStyle } from '../utils';
-import type { Rect } from '../primitives/Rect';
-import { forEachSide, type Side, type Sides } from '../primitives/sides';
-import { COLORS } from './theme';
-import type { RenderContext } from './RenderContext';
-import { Interval } from '../primitives/Interval';
-import { Line } from '../primitives/Line';
-import { LabelRenderer } from './LabelRenderer';
+import { setElementStyle } from '../../utils';
+import { COLORS } from '../theme';
+import type { RenderContext } from '../RenderContext';
+import { Interval, Line, Rect, type Side, type Sides, forEachSide } from '../../primitives';
+import { LabelView } from './LabelView';
 
-const ZERO_SEGMENT = new Line('x', 0, 0, 0);
+const ZERO_LINE = new Line('x', 0, 0, 0);
 
-export class DistanceLinesRenderer {
+export class RelationView {
     private sourceRect?: Rect;
     private targetRect?: Rect;
 
     private $: Sides<{
         normal: SVGLineElement;
         tangent: SVGLineElement;
-        label: LabelRenderer;
+        label: LabelView;
     }>;
 
     constructor(renderContext: RenderContext) {
@@ -24,22 +21,22 @@ export class DistanceLinesRenderer {
             top: {
                 normal: renderContext.create('line'),
                 tangent: renderContext.create('line'),
-                label: new LabelRenderer(renderContext, 'right', COLORS.red),
+                label: new LabelView(renderContext, 'right', COLORS.red),
             },
             right: {
                 normal: renderContext.create('line'),
                 tangent: renderContext.create('line'),
-                label: new LabelRenderer(renderContext, 'bottom', COLORS.red),
+                label: new LabelView(renderContext, 'bottom', COLORS.red),
             },
             bottom: {
                 normal: renderContext.create('line'),
                 tangent: renderContext.create('line'),
-                label: new LabelRenderer(renderContext, 'right', COLORS.red),
+                label: new LabelView(renderContext, 'right', COLORS.red),
             },
             left: {
                 normal: renderContext.create('line'),
                 tangent: renderContext.create('line'),
-                label: new LabelRenderer(renderContext, 'bottom', COLORS.red),
+                label: new LabelView(renderContext, 'bottom', COLORS.red),
             },
         };
 
@@ -59,7 +56,7 @@ export class DistanceLinesRenderer {
         });
     }
 
-    private render(sourceRect: Rect, targetRect: Rect) {
+    private render(sourceRect: Rect, targetRect: Rect): void {
         const mapSidesToRender: Partial<Sides<Side>> = {};
 
         const relations = {
@@ -94,11 +91,11 @@ export class DistanceLinesRenderer {
         forEachSide(this.$, (lines, side) => {
             const targetSide = mapSidesToRender[side];
             if (!targetSide) {
-                ZERO_SEGMENT.applyToSVGLine(lines.normal);
-                ZERO_SEGMENT.applyToSVGLine(lines.tangent);
+                ZERO_LINE.applyToSVGLine(lines.normal);
+                ZERO_LINE.applyToSVGLine(lines.tangent);
 
                 lines.label.update({
-                    reference: ZERO_SEGMENT,
+                    reference: ZERO_LINE,
                     text: '',
                     hidden: true,
                 });
@@ -110,32 +107,32 @@ export class DistanceLinesRenderer {
 
             const axisRelation = relations[sourceRectSide.axis];
 
-            let segmentTangent = sourceRectSide.middle;
+            let lineTangetnt = sourceRectSide.middle;
             if (axisRelation === Interval.RELATION_CONTAINS) {
-                segmentTangent = targetRectSide.middle;
+                lineTangetnt = targetRectSide.middle;
             } else if (axisRelation === Interval.RELATION_OVERLAPS) {
-                segmentTangent = sourceRectSide.intersectWith(targetRectSide).middle;
+                lineTangetnt = sourceRectSide.intersectWith(targetRectSide).middle;
             }
 
-            const segment = new Line(
+            const normal = new Line(
                 sourceRectSide.tangentAxis,
                 sourceRectSide.tangent,
                 targetRectSide.tangent,
-                segmentTangent,
+                lineTangetnt,
             );
 
-            segment.applyToSVGLine(lines.normal);
+            normal.applyToSVGLine(lines.normal);
 
             lines.label.update({
-                reference: segment,
-                text: segment.formatLength(),
-                hidden: !segment.length,
+                reference: normal,
+                text: normal.formatLength(),
+                hidden: !normal.length,
             });
 
             if (
-                segment.length &&
+                normal.length &&
                 axisRelation !== Interval.RELATION_CONTAINS &&
-                !targetRectSide.has(segmentTangent)
+                !targetRectSide.has(lineTangetnt)
             ) {
                 let key: 'start' | 'end' = 'start';
                 if (
@@ -160,7 +157,7 @@ export class DistanceLinesRenderer {
         this.targetRect = targetRect;
     }
 
-    public update(sourceRect: Rect, targetRect: Rect) {
+    public update(sourceRect: Rect, targetRect: Rect): void {
         if (
             this.sourceRect &&
             this.sourceRect.equals(sourceRect) &&
@@ -173,7 +170,7 @@ export class DistanceLinesRenderer {
         this.render(sourceRect, targetRect);
     }
 
-    public unmount() {
+    public unmount(): void {
         forEachSide(this.$, (lines) => {
             lines.normal.remove();
             lines.tangent.remove();

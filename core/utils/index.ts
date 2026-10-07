@@ -1,4 +1,5 @@
 export * from './findClipParents';
+export * from './getNodeDOMRects';
 export * from './getTextNodeRange';
 export * from './isValidTextNode';
 export * from './round';

@@ -1,1 +1,1 @@
-export * from './lib/MeasuresController';
+export * from './lib';

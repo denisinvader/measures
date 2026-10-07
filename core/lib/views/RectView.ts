@@ -1,9 +1,9 @@
-import { setElementStyle } from '../utils';
-import { Rect } from '../primitives/Rect';
-import { COLORS } from './theme';
-import { RenderContext } from './RenderContext';
+import { setElementStyle } from '../../utils';
+import { Rect } from '../../primitives';
+import { COLORS } from '../theme';
+import type { RenderContext } from '../RenderContext';
 
-export class RectRenderer {
+export class RectView {
     private $: {
         ghostRect: SVGRectElement;
         linesPath: SVGPathElement;

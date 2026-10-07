@@ -1,11 +1,10 @@
 import { findClipParents } from '../utils';
-import { Rect } from '../primitives/Rect';
+import { Rect } from '../primitives';
 import type { RenderContext } from './RenderContext';
 
 const ZERO_RECT = new Rect(0, 0, 0, 0);
 
-// TODO: rename to observer
-export class ClipPathRenderer {
+export class ClipPathObserver {
     private clipParents: Element[];
     private $: {
         clipPath: SVGClipPathElement;
@@ -38,11 +37,7 @@ export class ClipPathRenderer {
         this.update();
     }
 
-    public render() {
-        this.clipRect.applyToSVGRect(this.$.rect);
-    }
-
-    public update() {
+    public update(): void {
         if (!this.clipParents.length) {
             return;
         }
@@ -64,10 +59,10 @@ export class ClipPathRenderer {
 
         this.clipRect = nextClipRect;
 
-        this.render();
+        this.clipRect.applyToSVGRect(this.$.rect);
     }
 
-    public unmount() {
+    public unmount(): void {
         this.$.rect.remove();
         this.$.clipPath.remove();
     }

@@ -1,9 +1,7 @@
-import { setElementStyle } from '../utils';
-import { Rect } from '../primitives/Rect';
-import { type Side } from '../primitives/sides';
-import { COLORS } from './theme';
-import { RenderContext } from './RenderContext';
-import { Line } from '../primitives/Line';
+import { setElementStyle } from '../../utils';
+import { Line, Rect, type Side } from '../../primitives';
+import { COLORS } from '../theme';
+import type { RenderContext } from '../RenderContext';
 
 const FONT_SIZE = 12;
 const PADDING_X = 0.25 * FONT_SIZE;
@@ -16,7 +14,7 @@ interface LabelViewState {
     hidden?: boolean;
 }
 
-export class LabelRenderer {
+export class LabelView {
     private targetSide: Side;
 
     private state: Required<LabelViewState>;
