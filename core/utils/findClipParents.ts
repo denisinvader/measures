@@ -1,4 +1,4 @@
-export const findClipParents = function findClipParents(e: HTMLElement | SVGElement): Element[] {
+export const findClipParents = function findClipParents(e: Element | Node): Element[] {
     let current: Element | null = e instanceof HTMLElement ? e.offsetParent : e.parentElement;
     const result: Element[] = [];
 

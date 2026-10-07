@@ -53,21 +53,6 @@ import { MeasuresController } from '@measureme/core';
     let active = true;
     const activate = () => {
         document.querySelectorAll('[data-debug-box]').forEach((target) => cc.observe(target));
-
-        document
-            .querySelectorAll<HTMLElement | SVGElement>('[data-debug-text]')
-            .forEach((target) => {
-                const targetIndex = Number(target.dataset.debugText || '0');
-                const textNodes = Array.from(target.childNodes).filter(
-                    (n) => n.TEXT_NODE === n.nodeType,
-                );
-                const targetNode = textNodes[targetIndex];
-                if (!targetNode) {
-                    return;
-                }
-
-                console.info(targetNode);
-            });
     };
     const handleToggle = () => {
         if (active) {

@@ -1,25 +1,31 @@
+import { Rect } from '../primitives/Rect';
+import { getTextNodeRange, isValidTextNode } from '../utils';
 import { DistanceObserver } from './DistanceObserver';
 import { ElementSizeObserver } from './ElementSizeObserver';
 import { RenderContext } from './RenderContext';
 
-// TODO: https://jsfiddle.net/hodca/mcab43nd/87/
 // TODO: rename
 export class MeasuresController {
     private sizeObservers: Map<Node, ElementSizeObserver>;
     private lockedSizeNodes: Set<Node>;
 
     private relationObservers: Map<Node, Map<Node, DistanceObserver>>;
+    // TODO: implement relations locks
     // private lockedRelationObservers: Map<Node, Node>;
 
-    private lastRequestAnimationFrame: number;
+    private lastRAF: number;
 
     private renderContext: RenderContext;
 
-    private currentReference: Node | null;
-    private relatedReference: Node | null;
+    private currentReferenceNode: Node | null;
+    private currentRelationNode: Node | null;
+
     private autoObserveCleanup: () => void;
 
+    // TODO: remember x and y
     private lastHoverElement: Node | null;
+
+    private shouldObserveTexts: boolean;
 
     constructor() {
         this.sizeObservers = new Map();
@@ -28,26 +34,28 @@ export class MeasuresController {
         this.relationObservers = new Map();
         // this.lockedRelationObservers = new Map();
 
-        this.lastRequestAnimationFrame = 0;
+        this.lastRAF = 0;
 
         this.renderContext = new RenderContext();
 
-        this.currentReference = null;
-        this.relatedReference = null;
+        this.currentReferenceNode = null;
+        this.currentRelationNode = null;
         this.lastHoverElement = null;
+
+        this.shouldObserveTexts = true;
+
         this.autoObserveCleanup = () => {};
     }
 
-    // TODO: rename
-    private goRaf() {
-        this.lastRequestAnimationFrame = requestAnimationFrame(() => this.tick());
+    private subscribeToRAF() {
+        this.lastRAF = requestAnimationFrame(() => this.handleRAF());
     }
 
-    private stopRaf() {
-        cancelAnimationFrame(this.lastRequestAnimationFrame);
+    private cancelLastRAF() {
+        cancelAnimationFrame(this.lastRAF);
     }
 
-    private tick() {
+    private handleRAF() {
         if (!this.sizeObservers.size && !this.relationObservers.size) {
             return;
         }
@@ -57,7 +65,7 @@ export class MeasuresController {
         this.sizeObservers.forEach((t) => t.update());
         this.relationObservers.forEach((s) => s.forEach((o) => o.update()));
 
-        this.goRaf();
+        this.subscribeToRAF();
     }
 
     public observe(node: Node) {
@@ -65,12 +73,12 @@ export class MeasuresController {
             return;
         }
 
-        if (node instanceof HTMLElement || node instanceof SVGElement) {
+        if (isValidTextNode(node) || node instanceof HTMLElement || node instanceof SVGElement) {
             this.sizeObservers.set(node, new ElementSizeObserver(node, this.renderContext));
 
-            this.stopRaf();
+            this.cancelLastRAF();
 
-            this.goRaf();
+            this.subscribeToRAF();
         }
     }
 
@@ -78,18 +86,18 @@ export class MeasuresController {
         if (this.lockedSizeNodes.has(node)) {
             return;
         }
-        const bb = this.sizeObservers.get(node);
-        if (!bb) {
+        const observer = this.sizeObservers.get(node);
+        if (!observer) {
             return;
         }
 
-        this.stopRaf();
+        this.cancelLastRAF();
 
-        bb.destroy();
+        observer.destroy();
         this.sizeObservers.delete(node);
 
         if (this.sizeObservers.size || this.relationObservers.size) {
-            this.goRaf();
+            this.subscribeToRAF();
         }
     }
 
@@ -100,8 +108,12 @@ export class MeasuresController {
         }
 
         if (
-            (source instanceof HTMLElement || source instanceof SVGElement) &&
-            (target instanceof HTMLElement || target instanceof SVGElement)
+            (isValidTextNode(source) ||
+                source instanceof HTMLElement ||
+                source instanceof SVGElement) &&
+            (isValidTextNode(target) ||
+                target instanceof HTMLElement ||
+                target instanceof SVGElement)
         ) {
             if (!sourceObservers) {
                 sourceObservers = new Map<Node, DistanceObserver>();
@@ -110,9 +122,9 @@ export class MeasuresController {
 
             sourceObservers.set(target, new DistanceObserver(this.renderContext, source, target));
 
-            this.stopRaf();
+            this.cancelLastRAF();
 
-            this.goRaf();
+            this.subscribeToRAF();
         }
     }
 
@@ -122,14 +134,14 @@ export class MeasuresController {
             return;
         }
 
-        const bb = sourceObservers.get(target);
-        if (!bb) {
+        const observer = sourceObservers.get(target);
+        if (!observer) {
             return;
         }
 
-        this.stopRaf();
+        this.cancelLastRAF();
 
-        bb.unmount();
+        observer.unmount();
 
         sourceObservers.delete(target);
 
@@ -138,7 +150,7 @@ export class MeasuresController {
         }
 
         if (this.sizeObservers.size || this.relationObservers.size) {
-            this.goRaf();
+            this.subscribeToRAF();
         }
     }
 
@@ -158,6 +170,22 @@ export class MeasuresController {
         }
     }
 
+    private getTargetNode(element: Element, x: number, y: number): Node {
+        const textNodes = Array.from(element.childNodes).filter(isValidTextNode);
+
+        for (let i = 0; i < textNodes.length; i += 1) {
+            const node = textNodes[i];
+            const range = getTextNodeRange(node);
+            const rect = Rect.fromDOMRect(range.getBoundingClientRect());
+
+            if (rect.hasPoint({ x, y })) {
+                return node;
+            }
+        }
+
+        return element;
+    }
+
     mouseMoveHandler(e: MouseEvent) {
         if (e.target instanceof Node) {
             this.lastHoverElement = e.target;
@@ -170,47 +198,55 @@ export class MeasuresController {
         //     return;
         // }
 
-        if (!e.shiftKey || !this.currentReference) {
-            if (e.target === this.currentReference) {
+        if (!e.shiftKey || !this.currentReferenceNode) {
+            if (e.target === document.body || !(e.target instanceof Element)) {
                 return;
             }
 
-            if (this.currentReference) {
-                this.unobserve(this.currentReference);
-            }
+            const target = this.shouldObserveTexts
+                ? this.getTargetNode(e.target, e.clientX, e.clientY)
+                : e.target;
 
-            if (e.target === document.body || !(e.target instanceof Node)) {
+            if (target === this.currentReferenceNode) {
                 return;
             }
 
-            this.observe(e.target);
-            this.currentReference = e.target;
+            if (this.currentReferenceNode) {
+                this.unobserve(this.currentReferenceNode);
+            }
 
-            if (this.relatedReference) {
-                this.unobserveRelation(this.currentReference, this.relatedReference);
-                this.relatedReference = null;
+            this.observe(target);
+            this.currentReferenceNode = target;
+
+            if (this.currentRelationNode) {
+                this.unobserveRelation(this.currentReferenceNode, this.currentRelationNode);
+                this.currentRelationNode = null;
             }
 
             return;
         }
 
-        if (this.relatedReference) {
-            this.unobserveRelation(this.currentReference, this.relatedReference);
+        if (this.currentRelationNode) {
+            this.unobserveRelation(this.currentReferenceNode, this.currentRelationNode);
         }
 
-        if (
-            e.target === this.currentReference ||
-            e.target === document.body ||
-            !(e.target instanceof Node)
-        ) {
+        if (e.target === document.body || !(e.target instanceof Element)) {
             return;
         }
 
-        this.observeRelation(this.currentReference, e.target);
-        this.relatedReference = e.target;
+        const target = this.shouldObserveTexts
+            ? this.getTargetNode(e.target, e.clientX, e.clientY)
+            : e.target;
+
+        if (target === this.currentReferenceNode) {
+            return;
+        }
+
+        this.observeRelation(this.currentReferenceNode, target);
+        this.currentRelationNode = target;
     }
 
-    mouseLeaveHandler(e: MouseEvent) {
+    bodyMouseLeaveHandler(e: MouseEvent) {
         if (
             e.relatedTarget &&
             e.relatedTarget instanceof Node &&
@@ -219,25 +255,29 @@ export class MeasuresController {
             return;
         }
 
-        if (this.currentReference) {
-            this.unobserve(this.currentReference);
+        if (this.currentReferenceNode) {
+            this.unobserve(this.currentReferenceNode);
 
-            if (this.relatedReference) {
-                this.unobserveRelation(this.currentReference, this.relatedReference);
+            if (this.currentRelationNode) {
+                this.unobserveRelation(this.currentReferenceNode, this.currentRelationNode);
             }
 
-            this.currentReference = null;
-            this.relatedReference = null;
+            this.currentReferenceNode = null;
+            this.currentRelationNode = null;
         }
     }
 
-    keyDownHandler(e: KeyboardEvent) {
-        if (e.key === 'a') {
-            if (this.currentReference) {
-                if (this.lockedSizeNodes.has(this.currentReference)) {
-                    this.lockedSizeNodes.delete(this.currentReference);
+    bodyKeyDownHandler(e: KeyboardEvent) {
+        if (e.key.toLowerCase() === 't') {
+            this.shouldObserveTexts = !this.shouldObserveTexts;
+        }
+
+        if (e.key.toLowerCase() === 'a') {
+            if (this.currentReferenceNode) {
+                if (this.lockedSizeNodes.has(this.currentReferenceNode)) {
+                    this.lockedSizeNodes.delete(this.currentReferenceNode);
                 } else {
-                    this.lockedSizeNodes.add(this.currentReference);
+                    this.lockedSizeNodes.add(this.currentReferenceNode);
                 }
             }
         }
@@ -245,47 +285,48 @@ export class MeasuresController {
         if (e.key === 'Alt') {
             if (this.lastHoverElement) {
                 this.observe(this.lastHoverElement);
-                this.currentReference = this.lastHoverElement;
+                this.currentReferenceNode = this.lastHoverElement;
             }
         }
     }
 
-    keyUpHandler(e: KeyboardEvent) {
+    bodyKeyUpHandler(e: KeyboardEvent) {
         if (e.key === 'Alt') {
-            if (this.currentReference) {
-                this.unobserve(this.currentReference);
-                this.currentReference = null;
+            if (this.currentReferenceNode) {
+                this.unobserve(this.currentReferenceNode);
+                this.currentReferenceNode = null;
             }
         }
 
         if (e.key === 'Shift') {
-            if (this.currentReference && this.relatedReference) {
-                this.unobserveRelation(this.currentReference, this.relatedReference);
-                this.unobserve(this.currentReference);
-                this.currentReference = null;
-                this.relatedReference = null;
+            // TODO: check if reverence currently hovered
+            if (this.currentReferenceNode && this.currentRelationNode) {
+                this.unobserveRelation(this.currentReferenceNode, this.currentRelationNode);
+                this.unobserve(this.currentReferenceNode);
+                this.currentReferenceNode = null;
+                this.currentRelationNode = null;
             }
         }
     }
 
     autoObserve() {
-        const handler = this.mouseMoveHandler.bind(this);
-        const mouseLeaveHandler = this.mouseLeaveHandler.bind(this);
-        const keyDownHandler = this.keyDownHandler.bind(this);
-        const keyUpHandler = this.keyUpHandler.bind(this);
+        const mouseHanlder = this.mouseMoveHandler.bind(this);
+        const bodyMouseLeaveHandler = this.bodyMouseLeaveHandler.bind(this);
+        const bodyKeyDownHandler = this.bodyKeyDownHandler.bind(this);
+        const bodyKeyUpHandler = this.bodyKeyUpHandler.bind(this);
 
-        document.addEventListener('mousemove', handler);
-        document.addEventListener('mouseover', handler);
-        document.body.addEventListener('mouseleave', mouseLeaveHandler);
-        document.body.addEventListener('keydown', keyDownHandler);
-        document.body.addEventListener('keyup', keyUpHandler);
+        document.addEventListener('mousemove', mouseHanlder);
+        document.addEventListener('mouseover', mouseHanlder);
+        document.body.addEventListener('mouseleave', bodyMouseLeaveHandler);
+        document.body.addEventListener('keydown', bodyKeyDownHandler);
+        document.body.addEventListener('keyup', bodyKeyUpHandler);
 
         this.autoObserveCleanup = () => {
-            document.removeEventListener('mousemove', handler);
-            document.removeEventListener('mouseover', handler);
-            document.body.removeEventListener('mouseleave', mouseLeaveHandler);
-            document.body.removeEventListener('keydown', keyDownHandler);
-            document.body.removeEventListener('keyup', keyUpHandler);
+            document.removeEventListener('mousemove', mouseHanlder);
+            document.removeEventListener('mouseover', mouseHanlder);
+            document.body.removeEventListener('mouseleave', bodyMouseLeaveHandler);
+            document.body.removeEventListener('keydown', bodyKeyDownHandler);
+            document.body.removeEventListener('keyup', bodyKeyUpHandler);
 
             this.autoObserveCleanup = () => {};
         };
@@ -293,12 +334,12 @@ export class MeasuresController {
 
     public cleanup() {
         this.autoObserveCleanup();
-        this.stopRaf();
+        this.cancelLastRAF();
 
-        this.sizeObservers.forEach((bb) => bb.destroy());
+        this.sizeObservers.forEach((o) => o.destroy());
         this.sizeObservers = new Map();
 
-        this.relationObservers.forEach((s) => s.forEach((d) => d.unmount()));
+        this.relationObservers.forEach((s) => s.forEach((o) => o.unmount()));
         this.relationObservers = new Map();
     }
 

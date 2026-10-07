@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>base - @measureme/sandbox</title>
+        <script>
+            (() => {
+                let theme = window.matchMedia('(prefers-color-scheme: dark)').matches
+                    ? 'dark'
+                    : 'light';
+                try {
+                    const saved = localStorage.getItem('sandbox-base-theme');
+                    if (saved === 'light' || saved === 'dark') theme = saved;
+                } catch {
+                    // Use the system preference when storage is unavailable.
+                }
+                document.documentElement.dataset.bsTheme = theme;
+            })();
+        </script>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+        <link rel="stylesheet" href="./style.css" />
+    </head>
+    <body>
+        <div class="container page-shell">
+            <header
+                class="d-flex align-items-center justify-content-between gap-3 py-4 border-bottom"
+            >
+                <a class="brand text-decoration-none" href="./">base<span>.</span></a>
+                <div class="d-flex flex-wrap align-items-center justify-content-end gap-3">
+                    <span class="text-secondary small">A space for ideas</span>
+                    <button
+                        id="theme-toggle"
+                        class="btn btn-outline-secondary btn-sm"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        Dark theme
+                    </button>
+                </div>
+            </header>
+
+            <main>
+                <section class="hero" aria-labelledby="hero-title">
+                    <span class="badge rounded-pill intro-badge mb-4">A small beginning</span>
+                    <h1 id="hero-title" data-debug-box>Room for<br /><span>something new.</span></h1>
+                    <p class="text-secondary mt-4 mb-4">
+                        A little breathing room, simple shapes, and thoughtful details.
+                    </p>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <button type="button" class="btn btn-dark btn-lg" id="toggle">Toggle</button>
+                        <a class="btn btn-outline-secondary" href="#note">Leave a note</a>
+                        <a class="btn btn-light btn-sm" href="#details">Details ↗</a>
+                    </div>
+                </section>
+
+                <section id="collection" aria-label="Element collection">
+                    <div class="row g-3 align-items-start">
+                        <div class="col-12 col-md-7">
+                            <article class="card feature-card border-0">
+                                <div class="card-body p-4 p-lg-5">
+                                    <span class="small text-secondary">01 / FEATURED</span>
+                                    <div class="shape-composition" aria-hidden="true">
+                                        <span class="shape-circle"></span>
+                                        <span class="shape-square"></span>
+                                    </div>
+                                    <h2 class="h3">Simplicity in the details</h2>
+                                    <p class="text-secondary mb-0">More room for what matters.</p>
+                                </div>
+                            </article>
+                        </div>
+                        <div class="col-12 col-md-5">
+                            <article class="card border-0 mb-3" id="note" data-debug-box>
+                                <div class="card-body p-4">
+                                    <h2 class="h5 mb-3">Quick note</h2>
+                                    <label class="form-label small text-secondary" for="idea"
+                                        >What should we try next?</label
+                                    >
+                                    <textarea
+                                        class="form-control"
+                                        id="idea"
+                                        rows="2"
+                                        placeholder="Here’s an idea…"
+                                    ></textarea>
+                                </div>
+                            </article>
+                            <article class="card detail-card border-0" id="details">
+                                <div
+                                    class="card-body p-4 d-flex align-items-center justify-content-between gap-3"
+                                >
+                                    <div>
+                                        <h2 class="h6 mb-1">At your own pace</h2>
+                                        <p class="small text-secondary mb-0">One step at a time.</p>
+                                    </div>
+                                    <span class="badge rounded-pill status-badge">In progress</span>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+                <section class="test-section" aria-labelledby="inline-title">
+                    <h2 id="inline-title" class="h3">Small actions</h2>
+                    <p class="text-secondary mb-4">
+                        Inspect the action, its icon, and the path inside it.
+                    </p>
+                    <div class="action-examples">
+                        <div class="debug-action" data-debug-box>
+                            <svg
+                                class="action-icon"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                                data-debug-box
+                            >
+                                <path d="M5 12h14m-7-7 7 7-7 7" data-debug-box />
+                            </svg>
+                            Call to action
+                        </div>
+                        <div class="debug-action debug-action-narrow" data-debug-box data-debug-text="1">
+                            <svg
+                                class="action-icon"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                                data-debug-box
+                            >
+                                <path d="M5 12h14m-7-7 7 7-7 7" />
+                            </svg>
+                            A longer call to action that wraps onto multiple lines
+                        </div>
+                    </div>
+                    <p class="inline-copy mt-4" data-debug-box>
+                        Text before an
+                        <a href="#scroll-examples"
+                            >inline link that wraps across several lines in a narrow paragraph</a
+                        >
+                        and text after it.
+                    </p>
+                </section>
+
+                <section id="scroll-examples" class="test-section" aria-labelledby="scroll-title">
+                    <h2 id="scroll-title" class="h3">A collection within a collection</h2>
+                    <p id="scroll-help" class="text-secondary mb-4">
+                        Scroll in both directions, reach each edge, then keep scrolling. The toolbar
+                        stays at the top.
+                    </p>
+                    <div
+                        class="scroll-viewport"
+                        tabindex="0"
+                        role="region"
+                        aria-labelledby="scroll-title"
+                        aria-describedby="scroll-help"
+                    >
+                        <div class="scroll-toolbar" data-debug-box>
+                            <strong>Ideas board</strong>
+                            <span class="badge rounded-pill status-badge">18 cards</span>
+                        </div>
+                        <div id="scroll-grid" class="scroll-grid"></div>
+                    </div>
+                </section>
+
+                <section class="test-section" aria-labelledby="position-title">
+                    <h2 id="position-title" class="h3">A different frame of reference</h2>
+                    <p class="text-secondary mb-4">
+                        A transformed parent, an absolute badge, and a locally fixed label. Compare
+                        them with the Up button while scrolling the page.
+                    </p>
+                    <div class="transformed-parent">
+                        <span class="position-badge badge status-badge" data-debug-box
+                            >Absolute badge</span
+                        >
+                        <article class="card border-0 p-4 transformed-card" data-debug-box>
+                            <h3 class="h5">Slightly off the grid</h3>
+                            <p class="text-secondary">
+                                A little rotation and fractional dimensions.
+                            </p>
+                        </article>
+                        <div class="local-fixed" data-debug-box>Fixed inside transform</div>
+                    </div>
+                </section>
+            </main>
+
+            <footer class="d-flex justify-content-between gap-3 py-4 mt-4 small text-secondary">
+                <span>Base / Sandbox</span>
+                <span>Everything starts small.</span>
+            </footer>
+        </div>
+
+        <button
+            id="scroll-up"
+            class="scroll-up btn btn-dark"
+            type="button"
+            aria-label="Scroll to top"
+            data-debug-box
+        >
+        <span>
+            <svg
+                class="action-icon up-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                data-debug-box
+            >
+                <path d="M5 12h14m-7-7 7 7-7 7" />
+            </svg>
+        </span>
+            Up
+        </button>
+
+        <template id="scroll-card-template">
+            <article class="card scroll-card border-0">
+                <div class="card-body p-4">
+                    <span class="small text-secondary">COLLECTION</span>
+                    <h3 class="h5 mt-3">Idea</h3>
+                    <p class="text-secondary mb-3">
+                        Make room for a small experiment and see where it leads.
+                    </p>
+                    <div class="debug-action">
+                        <svg
+                            class="action-icon"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path d="M5 12h14m-7-7 7 7-7 7" />
+                        </svg>
+                        Take a closer look
+                    </div>
+                </div>
+            </article>
+        </template>
+        <script type="module" src="./base.ts"></script>
+    </body>
+</html>

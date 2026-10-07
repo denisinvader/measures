@@ -2,6 +2,7 @@ import { round } from '../utils';
 import { Line } from './Line';
 import { Interval } from './Interval';
 import type { Sides } from './sides';
+import type { Point } from './Point';
 
 export class Rect {
     public readonly x: number;
@@ -76,6 +77,10 @@ export class Rect {
 
     public equals(other: Rect): boolean {
         return this.toString() === other.toString();
+    }
+
+    public hasPoint(p: Point): boolean {
+        return p.x >= this.x1 && p.y >= this.y1 && p.x <= this.x2 && p.y <= this.y2;
     }
 
     // TODO: rename to clipBy or smth

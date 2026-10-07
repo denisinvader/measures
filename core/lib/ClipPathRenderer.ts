@@ -2,8 +2,9 @@ import { findClipParents } from '../utils';
 import { Rect } from '../primitives/Rect';
 import type { RenderContext } from './RenderContext';
 
-const zeroRect = new Rect(0, 0, 0, 0);
+const ZERO_RECT = new Rect(0, 0, 0, 0);
 
+// TODO: rename to observer
 export class ClipPathRenderer {
     private clipParents: Element[];
     private $: {
@@ -13,7 +14,7 @@ export class ClipPathRenderer {
     private clipRect: Rect;
     public readonly id: string | null;
 
-    constructor(renderContext: RenderContext, referenceElement: HTMLElement | SVGElement) {
+    constructor(renderContext: RenderContext, referenceElement: Element | Node) {
         this.clipParents = findClipParents(referenceElement);
 
         this.$ = {
@@ -54,7 +55,7 @@ export class ClipPathRenderer {
         }
 
         if (!nextClipRect.isValid) {
-            nextClipRect = zeroRect;
+            nextClipRect = ZERO_RECT;
         }
 
         if (this.clipRect.equals(nextClipRect)) {

@@ -42,6 +42,31 @@ test('Rect', () => {
         });
     });
 
+    test('.hasPoint(p)', () => {
+        it('returns true when point inside rect', () => {
+            const rect = new Rect(10, 10, 10, 10);
+
+            assert.equal(rect.hasPoint({ x: 15, y: 15 }), true);
+        });
+
+        it('returns true when point touches rect', () => {
+            const rect = new Rect(10, 10, 10, 10);
+
+            assert.equal(rect.hasPoint({ x: 10, y: 10 }), true);
+        });
+
+        it('returns false when point outside of rect', () => {
+            const rect = new Rect(10, 10, 10, 10);
+
+            assert.equal(rect.hasPoint({ x: 9, y: 9 }), false);
+            assert.equal(rect.hasPoint({ x: 9, y: 12 }), false);
+            assert.equal(rect.hasPoint({ x: 12, y: 9 }), false);
+            assert.equal(rect.hasPoint({ x: 30, y: 9 }), false);
+            assert.equal(rect.hasPoint({ x: 9, y: 30 }), false);
+            assert.equal(rect.hasPoint({ x: 30, y: 30 }), false);
+        });
+    });
+
     test('intersect', () => {
         it('assert fits outer', () => {
             const outer = new Rect(20, 20, 20, 20);

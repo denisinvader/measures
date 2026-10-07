@@ -65,16 +65,28 @@ test('Interval', () => {
     });
 
     test('.getRelationTo(other)', () => {
-        it('returns "before" relation when other.start greater or equals end', () => {
+        it('returns "starts" relation when other.start equals end', () => {
             const interval = new Interval(5, 10);
 
-            assert.equal(interval.getRelationTo(new Interval(10, 12)), Interval.RELATION_BEFORE);
+            assert.equal(interval.getRelationTo(new Interval(10, 12)), Interval.RELATION_STARTS);
         });
 
-        it('returns "after" relation when other.end lesser or equals start', () => {
+        it('returns "before" relation when other.start greater than end', () => {
             const interval = new Interval(5, 10);
 
-            assert.equal(interval.getRelationTo(new Interval(3, 5)), Interval.RELATION_AFTER);
+            assert.equal(interval.getRelationTo(new Interval(11, 12)), Interval.RELATION_BEFORE);
+        });
+
+        it('returns "ends" relation when other.end equals start', () => {
+            const interval = new Interval(5, 10);
+
+            assert.equal(interval.getRelationTo(new Interval(3, 5)), Interval.RELATION_ENDS);
+        });
+
+        it('returns "after" relation when other.end lesser than start', () => {
+            const interval = new Interval(5, 10);
+
+            assert.equal(interval.getRelationTo(new Interval(3, 4)), Interval.RELATION_AFTER);
         });
 
         it('returns "contains" relation when other fully inside interval', () => {
@@ -82,13 +94,10 @@ test('Interval', () => {
             assert.equal(interval.getRelationTo(new Interval(6, 8)), Interval.RELATION_CONTAINS);
         });
 
-        it('returns "overlaps" relation when intervals are equal', () => {
+        it('returns "equals" relation when intervals are equal', () => {
             const interval = new Interval(3.14, 73);
 
-            assert.equal(
-                interval.getRelationTo(new Interval(3.14, 73)),
-                Interval.RELATION_OVERLAPS,
-            );
+            assert.equal(interval.getRelationTo(new Interval(3.14, 73)), Interval.RELATION_EQUALS);
         });
 
         it('returns "overlaps" relation when intervals overlap some way', () => {

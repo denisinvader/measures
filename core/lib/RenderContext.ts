@@ -4,6 +4,7 @@ const NS = 'http://www.w3.org/2000/svg';
 
 type Group = 'ruler' | 'size' | 'relation' | 'label';
 
+// TODO: https://jsfiddle.net/hodca/mcab43nd/87/
 export class RenderContext {
     private root: SVGElement;
     private defs: SVGDefsElement;

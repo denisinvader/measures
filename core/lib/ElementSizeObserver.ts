@@ -1,21 +1,22 @@
-import { Rect } from '../primitives/Rect';
+import { getNodeRects } from './getNodeRects';
 import { ClipPathRenderer } from './ClipPathRenderer';
 import { LabelRenderer } from './LabelRenderer';
 import { RectRenderer } from './RectRenderer';
 import { RenderContext } from './RenderContext';
 import { COLORS } from './theme';
 
+// TODO: rename to SizeObserver
 export class ElementSizeObserver {
-    private targetElement: HTMLElement | SVGElement;
+    private referenceNode: Element | Node;
 
     private clipPathRenderer: ClipPathRenderer;
     private labelRenderer: LabelRenderer;
     private rectRenderer: RectRenderer;
 
-    public constructor(referenceElement: HTMLElement | SVGElement, renderContext: RenderContext) {
-        this.targetElement = referenceElement;
+    public constructor(referenceNode: Element | Node, renderContext: RenderContext) {
+        this.referenceNode = referenceNode;
 
-        this.clipPathRenderer = new ClipPathRenderer(renderContext, referenceElement);
+        this.clipPathRenderer = new ClipPathRenderer(renderContext, referenceNode);
         this.labelRenderer = new LabelRenderer(renderContext, 'bottom', COLORS.blue);
         this.rectRenderer = new RectRenderer(renderContext, this.clipPathRenderer.id);
 
@@ -23,13 +24,13 @@ export class ElementSizeObserver {
     }
 
     public update() {
-        const nextRect = Rect.fromDOMRect(this.targetElement.getBoundingClientRect());
+        const [boxRect, ...linesRects] = getNodeRects(this.referenceNode);
 
         this.clipPathRenderer.update();
-        this.rectRenderer.update(nextRect);
+        this.rectRenderer.update(boxRect, linesRects);
         this.labelRenderer.update({
-            reference: nextRect,
-            text: nextRect.formatSize(),
+            reference: boxRect,
+            text: boxRect.formatSize(),
         });
     }
 

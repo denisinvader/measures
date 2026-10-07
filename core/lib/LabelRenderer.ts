@@ -5,8 +5,10 @@ import { COLORS } from './theme';
 import { RenderContext } from './RenderContext';
 import { Line } from '../primitives/Line';
 
-const FONT_SIZE = 11;
-const PADDING = 0.125 * FONT_SIZE;
+const FONT_SIZE = 12;
+const PADDING_X = 0.25 * FONT_SIZE;
+const PADDING_Y = 0.125 * FONT_SIZE;
+const OFFSET = 8;
 
 interface LabelViewState {
     reference: Line | Rect;
@@ -15,8 +17,6 @@ interface LabelViewState {
 }
 
 export class LabelRenderer {
-    // FIXME: implement
-    // @ts-expect-error sefe
     private targetSide: Side;
 
     private state: Required<LabelViewState>;
@@ -46,6 +46,7 @@ export class LabelRenderer {
             fill,
             strokeWidth: '0',
         });
+        this.$.rect.setAttribute('rx', Math.max(PADDING_X, PADDING_Y).toString());
         this.$.root.appendChild(this.$.rect);
 
         setElementStyle(this.$.text, {
@@ -57,14 +58,14 @@ export class LabelRenderer {
         });
         this.$.text.setAttribute(
             'transform',
-            `translate(${PADDING + 1} ${PADDING + FONT_SIZE / 2})`,
+            `translate(${PADDING_X + 1} ${PADDING_Y + FONT_SIZE / 2})`,
         );
         this.$.root.appendChild(this.$.text);
 
         renderContext.append('label', this.$.root);
     }
 
-    public render({ reference, text, hidden }: LabelViewState) {
+    private render({ reference, text, hidden }: LabelViewState): void {
         if (hidden) {
             this.$.root.setAttribute('opacity', '0');
             return;
@@ -73,20 +74,41 @@ export class LabelRenderer {
             this.$.root.removeAttribute('opacity');
         }
 
-        const { center } = reference instanceof Rect ? reference.sides.bottom : reference;
-        const { x, y } = center;
+        const { center } = reference instanceof Rect ? reference.sides[this.targetSide] : reference;
 
         this.$.text.textContent = text;
 
         const textWidth = this.$.text.getBoundingClientRect().width;
-        const rect = new Rect(0, 0, textWidth + 2 * PADDING, FONT_SIZE + 2 * PADDING);
+        const rect = new Rect(0, 0, textWidth + 2 * PADDING_X, FONT_SIZE + 2 * PADDING_Y);
 
         rect.applyToSVGRect(this.$.rect);
 
-        this.$.root.setAttribute('transform', `translate(${x - rect.width / 2} ${y})`);
+        let xShift = 0;
+        let yShift = 0;
+        if (this.targetSide === 'top') {
+            xShift = -rect.width / 2;
+            yShift = -rect.height - OFFSET;
+        }
+        if (this.targetSide === 'right') {
+            yShift = -rect.height / 2;
+            xShift = OFFSET;
+        }
+        if (this.targetSide === 'bottom') {
+            xShift = -rect.width / 2;
+            yShift = OFFSET;
+        }
+        if (this.targetSide === 'left') {
+            xShift = -rect.width - OFFSET;
+            yShift = -rect.height / 2;
+        }
+
+        this.$.root.setAttribute(
+            'transform',
+            `translate(${center.x + xShift} ${center.y + yShift})`,
+        );
     }
 
-    public update({ reference, text, hidden = false }: LabelViewState) {
+    public update({ reference, text, hidden = false }: LabelViewState): void {
         if (
             this.state.text === text &&
             this.state.reference.toString() === reference.toString() &&
@@ -101,8 +123,8 @@ export class LabelRenderer {
     }
 
     public unmount() {
+        this.$.root.remove();
         this.$.text.remove();
         this.$.rect.remove();
-        this.$.root.remove();
     }
 }

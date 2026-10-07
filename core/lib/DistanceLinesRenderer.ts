@@ -14,7 +14,7 @@ export class DistanceLinesRenderer {
     private targetRect?: Rect;
 
     private $: Sides<{
-        join: SVGLineElement;
+        normal: SVGLineElement;
         tangent: SVGLineElement;
         label: LabelRenderer;
     }>;
@@ -22,33 +22,33 @@ export class DistanceLinesRenderer {
     constructor(renderContext: RenderContext) {
         this.$ = {
             top: {
-                join: renderContext.create('line'),
+                normal: renderContext.create('line'),
                 tangent: renderContext.create('line'),
                 label: new LabelRenderer(renderContext, 'right', COLORS.red),
             },
             right: {
-                join: renderContext.create('line'),
+                normal: renderContext.create('line'),
                 tangent: renderContext.create('line'),
                 label: new LabelRenderer(renderContext, 'bottom', COLORS.red),
             },
             bottom: {
-                join: renderContext.create('line'),
+                normal: renderContext.create('line'),
                 tangent: renderContext.create('line'),
                 label: new LabelRenderer(renderContext, 'right', COLORS.red),
             },
             left: {
-                join: renderContext.create('line'),
+                normal: renderContext.create('line'),
                 tangent: renderContext.create('line'),
                 label: new LabelRenderer(renderContext, 'bottom', COLORS.red),
             },
         };
 
         forEachSide(this.$, (lines) => {
-            setElementStyle(lines.join, {
+            setElementStyle(lines.normal, {
                 stroke: COLORS.red,
                 strokeWidth: '1.5',
             });
-            renderContext.append('relation', lines.join);
+            renderContext.append('relation', lines.normal);
 
             setElementStyle(lines.tangent, {
                 stroke: COLORS.red,
@@ -71,7 +71,10 @@ export class DistanceLinesRenderer {
             mapSidesToRender.right = 'left';
         } else if (relations.x === Interval.RELATION_AFTER) {
             mapSidesToRender.left = 'right';
-        } else {
+        } else if (
+            relations.x === Interval.RELATION_OVERLAPS ||
+            relations.x === Interval.RELATION_CONTAINS
+        ) {
             mapSidesToRender.left = 'left';
             mapSidesToRender.right = 'right';
         }
@@ -80,17 +83,25 @@ export class DistanceLinesRenderer {
             mapSidesToRender.bottom = 'top';
         } else if (relations.y === Interval.RELATION_AFTER) {
             mapSidesToRender.top = 'bottom';
-        } else {
+        } else if (
+            relations.y === Interval.RELATION_OVERLAPS ||
+            relations.y === Interval.RELATION_CONTAINS
+        ) {
             mapSidesToRender.top = 'top';
             mapSidesToRender.bottom = 'bottom';
         }
 
         forEachSide(this.$, (lines, side) => {
-            ZERO_SEGMENT.applyToSVGLine(lines.tangent);
-
             const targetSide = mapSidesToRender[side];
             if (!targetSide) {
-                ZERO_SEGMENT.applyToSVGLine(lines.join);
+                ZERO_SEGMENT.applyToSVGLine(lines.normal);
+                ZERO_SEGMENT.applyToSVGLine(lines.tangent);
+
+                lines.label.update({
+                    reference: ZERO_SEGMENT,
+                    text: '',
+                    hidden: true,
+                });
                 return;
             }
 
@@ -103,9 +114,7 @@ export class DistanceLinesRenderer {
             if (axisRelation === Interval.RELATION_CONTAINS) {
                 segmentTangent = targetRectSide.middle;
             } else if (axisRelation === Interval.RELATION_OVERLAPS) {
-                const intersection = sourceRectSide.intersectWith(targetRectSide);
-                segmentTangent = intersection.middle;
-                // TODO: intersect intervals and get middle
+                segmentTangent = sourceRectSide.intersectWith(targetRectSide).middle;
             }
 
             const segment = new Line(
@@ -115,7 +124,7 @@ export class DistanceLinesRenderer {
                 segmentTangent,
             );
 
-            segment.applyToSVGLine(lines.join);
+            segment.applyToSVGLine(lines.normal);
 
             lines.label.update({
                 reference: segment,
@@ -128,17 +137,22 @@ export class DistanceLinesRenderer {
                 axisRelation !== Interval.RELATION_CONTAINS &&
                 !targetRectSide.has(segmentTangent)
             ) {
-                const key =
-                    relations[targetRectSide.axis] === Interval.RELATION_BEFORE ? 'start' : 'end';
+                let key: 'start' | 'end' = 'start';
+                if (
+                    axisRelation === Interval.RELATION_AFTER ||
+                    axisRelation === Interval.RELATION_ENDS
+                ) {
+                    key = 'end';
+                }
 
-                const support = new Line(
+                const tangent = new Line(
                     sourceRectSide.axis,
                     sourceRectSide[key],
                     targetRectSide[key],
                     targetRectSide.tangent,
                 );
 
-                support.applyToSVGLine(lines.tangent);
+                tangent.applyToSVGLine(lines.tangent);
             }
         });
 
@@ -161,7 +175,7 @@ export class DistanceLinesRenderer {
 
     public unmount() {
         forEachSide(this.$, (lines) => {
-            lines.join.remove();
+            lines.normal.remove();
             lines.tangent.remove();
             lines.label.unmount();
         });

@@ -1,8 +1,13 @@
+import { round } from '../utils';
+
 export class Interval {
     public static RELATION_BEFORE = 'before' as const;
     public static RELATION_AFTER = 'after' as const;
+    public static RELATION_STARTS = 'starts' as const;
+    public static RELATION_ENDS = 'ends' as const;
     public static RELATION_OVERLAPS = 'overlaps' as const;
     public static RELATION_CONTAINS = 'contains' as const;
+    public static RELATION_EQUALS = 'equals' as const;
 
     public readonly start: number;
     public readonly end: number;
@@ -10,8 +15,8 @@ export class Interval {
     public readonly length: number;
 
     constructor(start: number, end: number) {
-        this.start = Math.min(start, end);
-        this.end = Math.max(start, end);
+        this.start = round(Math.min(start, end), 1000);
+        this.end = round(Math.max(start, end), 1000);
         this.length = this.end - this.start;
         this.middle = this.start + this.length / 2;
     }
@@ -25,16 +30,28 @@ export class Interval {
     }
 
     public getRelationTo(other: Interval) {
-        if (this.end <= other.start) {
+        if (this.end === other.start) {
+            return Interval.RELATION_STARTS;
+        }
+
+        if (this.end < other.start) {
             return Interval.RELATION_BEFORE;
         }
 
-        if (other.end <= this.start) {
+        if (this.start === other.end) {
+            return Interval.RELATION_ENDS;
+        }
+
+        if (other.end < this.start) {
             return Interval.RELATION_AFTER;
         }
 
         if (this.start < other.start && this.end > other.end) {
             return Interval.RELATION_CONTAINS;
+        }
+
+        if (this.start === other.start && this.end === other.end) {
+            return Interval.RELATION_EQUALS;
         }
 
         return Interval.RELATION_OVERLAPS;
