@@ -9,8 +9,7 @@ export class MeasuresController {
     private lockedSizeNodes: Set<Node>;
 
     private relationObservers: Map<Node, Map<Node, RelationObserver>>;
-    // TODO: implement relations locks
-    // private lockedRelationObservers: Map<Node, Node>;
+    private lockedRelationObservers: Map<Node, Set<Node>>;
 
     private lastRAF: number;
 
@@ -21,7 +20,7 @@ export class MeasuresController {
 
     private autoObserveCleanup: () => void;
 
-    // TODO: remember x and y
+    // TODO: remember x and y to target text node
     private lastHoverElement: Node | null;
 
     private shouldObserveTexts: boolean;
@@ -31,7 +30,7 @@ export class MeasuresController {
         this.lockedSizeNodes = new Set();
 
         this.relationObservers = new Map();
-        // this.lockedRelationObservers = new Map();
+        this.lockedRelationObservers = new Map();
 
         this.lastRAF = 0;
 
@@ -81,8 +80,8 @@ export class MeasuresController {
         }
     }
 
-    public unobserve(node: Node) {
-        if (this.lockedSizeNodes.has(node)) {
+    public unobserve(node: Node, force: boolean = false) {
+        if (this.lockedSizeNodes.has(node) && !force) {
             return;
         }
         const observer = this.sizeObservers.get(node);
@@ -135,6 +134,10 @@ export class MeasuresController {
 
         const observer = sourceObservers.get(target);
         if (!observer) {
+            return;
+        }
+
+        if (this.lockedRelationObservers.get(source)?.has(target)) {
             return;
         }
 
@@ -212,15 +215,15 @@ export class MeasuresController {
 
             if (this.currentReferenceNode) {
                 this.unobserve(this.currentReferenceNode);
+
+                if (this.currentRelationNode) {
+                    this.unobserveRelation(this.currentReferenceNode, this.currentRelationNode);
+                    this.currentRelationNode = null;
+                }
             }
 
             this.observe(target);
             this.currentReferenceNode = target;
-
-            if (this.currentRelationNode) {
-                this.unobserveRelation(this.currentReferenceNode, this.currentRelationNode);
-                this.currentRelationNode = null;
-            }
 
             return;
         }
@@ -267,12 +270,26 @@ export class MeasuresController {
     }
 
     bodyKeyDownHandler(e: KeyboardEvent) {
+        if (e.key === 'Escape') {
+            this.lockedSizeNodes.forEach((node) => this.unobserve(node, true));
+            this.lockedSizeNodes.clear();
+            this.lockedRelationObservers.forEach((_, s) => this.unobserveAllRelations(s));
+            this.lockedRelationObservers.clear();
+            this.subscribeToRAF();
+        }
+
         if (e.key.toLowerCase() === 't') {
             this.shouldObserveTexts = !this.shouldObserveTexts;
         }
 
         if (e.key.toLowerCase() === 'a') {
-            if (this.currentReferenceNode) {
+            if (this.currentRelationNode && this.currentReferenceNode) {
+                const set =
+                    this.lockedRelationObservers.get(this.currentReferenceNode) || new Set();
+                set.add(this.currentRelationNode);
+                this.lockedRelationObservers.set(this.currentReferenceNode, set);
+                this.lockedSizeNodes.add(this.currentReferenceNode);
+            } else if (this.currentReferenceNode) {
                 if (this.lockedSizeNodes.has(this.currentReferenceNode)) {
                     this.lockedSizeNodes.delete(this.currentReferenceNode);
                 } else {
@@ -340,6 +357,9 @@ export class MeasuresController {
 
         this.relationObservers.forEach((s) => s.forEach((o) => o.unmount()));
         this.relationObservers = new Map();
+
+        this.lockedRelationObservers.clear();
+        this.lockedSizeNodes.clear();
     }
 
     public destroy() {
