@@ -1,6 +1,7 @@
 packages:
     - core
     - extension
+    - landing
     - sandbox
 allowBuilds:
-  esbuild: set this to true or false
+  esbuild: false

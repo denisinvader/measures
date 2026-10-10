@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "sandbox": "pnpm -F sandbox dev",
+        "sandbox": "pnpm -F ./sandbox dev",
+        "landing": "pnpm -F ./landing dev",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "test": "node --import tsx --import ./happy-dom-env.ts --test **/__tests__/*.test.*",
