@@ -184,13 +184,19 @@ importers:
 
   landing:
     dependencies:
-      '@measureme/core':
+      '@measures/core':
         specifier: 'workspace:'
         version: link:../core
 
   sandbox:
     dependencies:
-      '@measureme/core':
+      '@measures/core':
+        specifier: 'workspace:'
+        version: link:../core
+
+  script:
+    dependencies:
+      '@measures/core':
         specifier: 'workspace:'
         version: link:../core
 

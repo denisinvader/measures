@@ -1,5 +1,5 @@
 {
-    "name": "@measureme/sandbox",
+    "name": "@measures/sandbox",
     "private": true,
     "version": "0.0.0",
     "type": "module",
@@ -8,6 +8,6 @@
         "dev": "vite"
     },
     "dependencies": {
-        "@measureme/core": "workspace:"
+        "@measures/core": "workspace:"
     }
 }

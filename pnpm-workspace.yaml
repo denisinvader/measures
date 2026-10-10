@@ -3,5 +3,6 @@ packages:
     - extension
     - landing
     - sandbox
+    - script
 allowBuilds:
   esbuild: false

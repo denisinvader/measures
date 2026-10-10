@@ -1,5 +1,5 @@
 import '../src/style.css';
-import { MeasuresController } from '@measureme/core';
+import { MeasuresController } from '@measures/core';
 
 (() => {
     const themeToggle = document.getElementById('theme-toggle');

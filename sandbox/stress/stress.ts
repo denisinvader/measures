@@ -1,4 +1,4 @@
-import { MeasuresController } from '@measureme/core';
+import { MeasuresController } from '@measures/core';
 
 type DocumentSize = {
     width: number;
