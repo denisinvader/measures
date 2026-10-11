@@ -14,6 +14,9 @@
         "tsc": "tsc --noEmit",
         "postinstall": "wxt prepare"
     },
+    "dependencies": {
+        "@measures/core": "workspace:*"
+    },
     "devDependencies": {
         "web-ext": "^10.5.0",
         "wxt": "^0.21.3"

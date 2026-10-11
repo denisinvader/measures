@@ -1,6 +1,22 @@
+import { MeasuresController } from '@measures/core';
+
 export default defineContentScript({
-    matches: ['*://*.google.com/*'],
+    matches: ['<all_urls>', '*://*.google.com/*'],
+    matchAboutBlank: true,
     main() {
-        console.log('Hello content.');
+        let cc: MeasuresController | null = null;
+
+        browser.runtime.onMessage.addListener((message) => {
+            if (message === 'enable') {
+                cc = new MeasuresController();
+                cc.autoObserve();
+            } else if (message === 'disable') {
+                if (!cc) {
+                    return;
+                }
+                cc.destroy();
+                cc = null;
+            }
+        });
     },
 });
