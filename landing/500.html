@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>500</title>
+        <meta name="description" content="Internal server error" />
+        <script>
+            (() => {
+                let theme = window.matchMedia('(prefers-color-scheme: dark)').matches
+                    ? 'dark'
+                    : 'light';
+                try {
+                    const saved = localStorage.getItem('theme');
+                    if (saved === 'light' || saved === 'dark') theme = saved;
+                } catch {
+                    //
+                }
+                document.documentElement.dataset.theme = theme;
+            })();
+        </script>
+        <link rel="stylesheet" href="./style.css" />
+        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="Measures" />
+        <link rel="manifest" href="/site.webmanifest" />
+    </head>
+    <body>
+        <main style="padding-block: 3rem; text-align: center">
+            <h1>500</h1>
+            <p>Internal server error</p>
+        </main>
+    </body>
+</html>
