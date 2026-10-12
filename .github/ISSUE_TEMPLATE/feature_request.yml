@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest a way to improve Measures.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What do you want to do?
+      description: Describe the task or problem you want Measures to help with.
+      placeholder: When I …, I want to …
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_behavior
+    attributes:
+      label: What happens today?
+      description: Describe the current behavior or workaround.
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: What would help?
+      description: Describe the behavior you would expect. A proposed design is optional.
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples or references
+      description: Add a screenshot, example, or link if it helps explain the request. Remove private information before sharing.
+    validations:
+      required: false

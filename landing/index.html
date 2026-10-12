@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Measures</title>
         <meta
             name="description"
-            content="Утилита для измерения размеров, отступов и расстояний между элементами на любом сайте."
+            content="A tool for measuring the dimensions, spacing, and distances between elements on any website."
         />
         <script>
             (() => {
@@ -85,11 +85,11 @@
 
             <nav>
                 <div class="lang">
-                    <a href="." aria-current="page">RU</a>
-                    <a href="/en/">EN</a>
+                    <a href="." aria-current="page">EN</a>
+                    <a href="/ru/">RU</a>
                 </div>
 
-                <button type="button" class="theme" aria-label="Переключить тему" id="theme">
+                <button type="button" class="theme" aria-label="Toggle theme" id="theme">
                     <svg
                         data-light
                         xmlns="http://www.w3.org/2000/svg"
@@ -131,7 +131,7 @@
                 </button>
 
                 <a
-                    href="https://github.com"
+                    href="https://github.com/denisinvader/measures"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="icon-link"
@@ -155,14 +155,14 @@
             <section>
                 <h1>Measures</h1>
                 <p>
-                    Утилита для измерения размеров, отступов и расстояний между элементами на любом
-                    сайте.
+                    A tool for measuring the dimensions, spacing, and distances between elements on
+                    any website.
                 </p>
             </section>
 
             <section>
-                <h2>Использование</h2>
-                <p>Добавьте код ниже в закладки браузера и активируйте на любом сайте.</p>
+                <h2>Usage</h2>
+                <p>Add the code below to bookmarks and activate it on any website.</p>
                 <div class="code">
                     <button type="button" aria-pressed="false" id="copy-code">
                         <svg
@@ -183,7 +183,7 @@
 
                             <path data-path="check" d="M20 6 9 17l-5-5" />
                         </svg>
-                        Копировать
+                        Copy
                     </button>
                     <pre>
 <b>javascript:</b>(()=>{const s=document.createElement('script');s.src='<b>https://unpkg.com/@dinvader/measures</b>';s.defer=true;document.head.appendChild(s)})();</pre>
@@ -193,17 +193,17 @@
             <section>
                 <div class="demo">
                     <div>
-                        <h2>Демо</h2>
-                        <p>Включите отслеживание размеров и наведите курсор на любой элемент.</p>
+                        <h2>Demo</h2>
+                        <p>Turn on measures tracking and hover any element.</p>
                     </div>
                     <button
                         type="button"
                         aria-pressed="false"
                         id="toggle"
-                        data-text-on="Включить"
-                        data-text-off="Выключить"
+                        data-text-on="Enable"
+                        data-text-off="Disable"
                     >
-                        <span>Включить</span>
+                        <span>Enable</span>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="1.25em"
@@ -228,32 +228,26 @@
                 </div>
             </section>
             <section>
-                <h2>Инструкция</h2>
+                <h2>Guide</h2>
                 <ul class="instruction">
                     <li>
-                        <h3>Мышь</h3>
+                        <h3>Mouse</h3>
                         <ul>
-                            <li>Наведите на элемент, чтобы увидеть его размеры.</li>
+                            <li>Hover over an element to see its dimensions.</li>
                             <li>
-                                Зажмите <kbd>Shift</kbd> и наведите на другой элемент, чтобы увидеть
-                                расстояние между ними.
+                                Hold <kbd>Shift</kbd> and hover over another element to see the
+                                distance between them.
                             </li>
                         </ul>
                     </li>
                     <li>
-                        <h3>Клавиатура</h3>
+                        <h3>Keyboard</h3>
                         <ul>
+                            <li>Press <kbd>T</kbd> to toggle tracking of text nodes.</li>
                             <li>
-                                Нажмите <kbd>T</kbd>, чтобы включить или выключить отслеживание
-                                текстовых узлов.
+                                Press <kbd>A</kbd> to pin the dimensions of the selected elements.
                             </li>
-                            <li>
-                                Нажмите <kbd>A</kbd>, чтобы зафиксировать отображение размеров
-                                выбранных элементов.
-                            </li>
-                            <li>
-                                Нажмите <kbd>Esc</kbd>, чтобы очистить зафиксированные элементы.
-                            </li>
+                            <li>Press <kbd>Esc</kbd> to clear the pinned elements.</li>
                         </ul>
                     </li>
                 </ul>
@@ -261,7 +255,12 @@
         </main>
 
         <footer>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a
+                href="https://github.com/denisinvader/measures"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GitHub</a
+            >
             <span>
                 <a
                     href="https://www.gnu.org/licenses/agpl-3.0.txt"
@@ -269,7 +268,7 @@
                     rel="nofollow noopener noreferrer"
                     >GNU AGPL 3.0</a
                 >
-                <span>© <a href="https://mpanichev.ru">Михаил Паничев</a>, 2026</span>
+                <span>© <a href="https://mpanichev.ru">Mikhail Panichev</a>, 2026</span>
             </span>
         </footer>
         <script type="module" src="./script.ts"></script>

@@ -199,7 +199,7 @@ importers:
         version: link:../core
 
   script:
-    dependencies:
+    devDependencies:
       '@measures/core':
         specifier: 'workspace:'
         version: link:../core

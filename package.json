@@ -1,7 +1,9 @@
 {
     "name": "measures",
+    "private": true,
     "version": "1.0.0",
-    "description": "",
+    "license": "AGPL-3.0-only",
+    "description": "A tool for measuring the dimensions, spacing, and distances between elements on any website.",
     "main": "index.js",
     "scripts": {
         "sandbox": "pnpm -F sandbox dev",
@@ -11,9 +13,15 @@
         "test": "node --import tsx --import ./happy-dom-env.ts --test **/__tests__/*.test.*",
         "test:watch": "node --import tsx --import ./happy-dom-env.ts --test --watch **/__tests__/*.test.*"
     },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
+    "author": {
+        "name": "Mikhail Panichev",
+        "email": "denis.invader@gmail.com",
+        "url": "https://mpanichev.ru"
+    },
+    "repository": "github:denisinvader/measures",
+    "bugs": {
+        "url": "https://github.com/denisinvader/measures/issues"
+    },
     "devEngines": {
         "packageManager": {
             "name": "pnpm",
